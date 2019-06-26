@@ -58,7 +58,7 @@ public final class Utility {
 			assetManager.finishLoadingAsset(fileNamePath);
 			Gdx.app.debug(TAG, assetType.getSimpleName()+" loaded!: " + fileNamePath);
 		} else {
-			Gdx.app.debug(TAG, "Map doesn't exist!: " + fileNamePath);
+			Gdx.app.debug(TAG, assetType.getSimpleName()+" doesn't exist!: " + fileNamePath);
 		}
 	}
 	
