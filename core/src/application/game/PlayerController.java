@@ -74,15 +74,15 @@ public class PlayerController implements InputProcessor {
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) { //@formatter:off
 		if( button == Input.Buttons.LEFT || button == Input.Buttons.RIGHT ) setClickedMouseCoordinates(screenX, screenY);
-		if( button == Input.Buttons.LEFT) selectMouseButtonPressed(screenX, screenY);
-		if( button == Input.Buttons.RIGHT) doActionMouseButtonPressed(screenX, screenY);
+		if( button == Input.Buttons.LEFT) selectMouseButtonPressed();
+		if( button == Input.Buttons.RIGHT) doActionMouseButtonPressed();
 		return true; //@formatter:on
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) { //@formatter:off
-		if( button == Input.Buttons.LEFT) selectMouseButtonReleased(screenX, screenY);
-		if( button == Input.Buttons.RIGHT) doActionMouseButtonReleased(screenX, screenY);
+		if( button == Input.Buttons.LEFT) selectMouseButtonReleased();
+		if( button == Input.Buttons.RIGHT) doActionMouseButtonReleased();
 		return true; //@formatter:on
 	}
 
@@ -113,19 +113,19 @@ public class PlayerController implements InputProcessor {
 		lastMouseCoordinates.set(x, y, 0);
 	}
 	
-	public void selectMouseButtonPressed(int x, int y){
+	public void selectMouseButtonPressed(){
 		mouseButtons.put(Mouse.SELECT, true);
 	}
 	
-	public void doActionMouseButtonPressed(int x, int y){
+	public void doActionMouseButtonPressed(){
 		mouseButtons.put(Mouse.DOACTION, true);
 	}
 	
-	public void selectMouseButtonReleased(int x, int y){
+	public void selectMouseButtonReleased(){
 		mouseButtons.put(Mouse.SELECT, false);
 	}
 	
-	public void doActionMouseButtonReleased(int x, int y){
+	public void doActionMouseButtonReleased(){
 		mouseButtons.put(Mouse.DOACTION, false);
 	}
 	
@@ -165,6 +165,6 @@ public class PlayerController implements InputProcessor {
 	private void moveEntity(float delta, Direction direction, State state) {
 		player.calculateNextPosition(direction, delta);
 		player.setState(state);
-		player.setDirection(direction, delta);
+		player.setDirection(direction);
 	}
 }

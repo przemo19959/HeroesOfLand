@@ -1,5 +1,7 @@
 package application.game;
 
+import java.util.Comparator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -12,11 +14,11 @@ import com.badlogic.gdx.utils.Array;
 public class Entity {
 	private static final String TAG = Entity.class.getSimpleName();
 	private static final String defaultSpritePath = "sprites/characters/Warrior.png";
-	private String characterSpritePath;
+	private String entitySpritePath;
 
-	private Vector2 velocity;
+	private Vector2 entityVelocity;
 
-	private Direction currentDirection = Direction.LEFT;
+	private Direction currentEntityDirection = Direction.LEFT;
 
 	private Animation<TextureRegion> walkLeftAnimation;
 	private Animation<TextureRegion> walkRightAnimation;
@@ -28,21 +30,23 @@ public class Entity {
 	private Array<TextureRegion> walkUpFrames;
 	private Array<TextureRegion> walkDownFrames;
 
-	private Vector2 nextPlayerPosition;
-	private Vector2 currentPlayerPosition;
-	private State state = State.IDLE;
+	private Vector2 nextEntityPosition;
+	private Vector2 currentEntityPosition;
+	private State entityState = State.IDLE;
 	private float frameTime = 0f;
-	private Sprite frameSprite = null;
-	private TextureRegion currentFrame = null;
+	private Sprite entitySprite = null;
+	private TextureRegion entityTextureRegion = null;
 
 	public final int FRAME_WIDTH = 16;
 	public final int FRAME_HEIGHT = 16;
-	public Rectangle boundingBox;
+	public Rectangle entityHitBox;
+	
+	public final static Comparator<Entity> yComparator=((entity1, entity2)->Float.compare(entity1.currentEntityPosition.y, entity2.currentEntityPosition.y));
 	
 	public Vector2 getNextPlayerPosition() {
-		return nextPlayerPosition;
+		return nextEntityPosition;
 	}
-
+	
 	public enum State {
 		IDLE, WALKING
 	}
@@ -51,21 +55,21 @@ public class Entity {
 		UP, RIGHT, DOWN, LEFT;
 	}
 
-	public Entity(String characterSpritePath) {
-		this.characterSpritePath = characterSpritePath;
+	public Entity(String entitySpritePath) {
+		this.entitySpritePath = entitySpritePath;
 		initEntity();
 	}
 
 	private void initEntity() {
-		nextPlayerPosition = new Vector2();
-		currentPlayerPosition = new Vector2();
-		boundingBox = new Rectangle();
-		velocity = new Vector2(2f, 2f);
+		nextEntityPosition = new Vector2();
+		currentEntityPosition = new Vector2();
+		entityHitBox = new Rectangle();
+		entityVelocity = new Vector2(2f, 2f);
 
 		Utility.loadAssetOfGivenType(getSpritePath(), Texture.class);
 		loadDefaultSprite();
 		loadAllAnimations();
-		initBoundingBoxSize(0, 0.5f);
+		initHitBoxSize(0, 0.5f);
 	}
 
 	/**
@@ -75,26 +79,31 @@ public class Entity {
 	 */
 	public void update(float delta) {
 		frameTime = (frameTime + delta) % 5;
-		updateBoundingBox();
+		updateHitBoxPosition();
 	}
 
 	public void init(float startX, float startY) {
-		currentPlayerPosition.x = startX;
-		currentPlayerPosition.y = startY;
+		currentEntityPosition.x = startX;
+		currentEntityPosition.y = startY;
 
-		nextPlayerPosition.x = startX;
-		nextPlayerPosition.y = startY;
+		nextEntityPosition.x = startX;
+		nextEntityPosition.y = startY;
 	}
 	
-	public void init(Vector2 position) {
-		currentPlayerPosition.x = position.x;
-		currentPlayerPosition.y = position.y;
-
-		nextPlayerPosition.x = position.x;
-		nextPlayerPosition.y = position.y;
+	public void init(Vector2 position, boolean scaled) {
+//		currentEntityPosition.x = position.x;
+//		currentEntityPosition.y = position.y;
+//
+//		nextEntityPosition.x = position.x;
+//		nextEntityPosition.y = position.y;
+		
+		currentEntityPosition.x = (scaled)?position.x*MapManager.UNIT_SCALE:position.x;
+		currentEntityPosition.y = (scaled)?position.y*MapManager.UNIT_SCALE:position.y;
+		nextEntityPosition.x = currentEntityPosition.x;
+		nextEntityPosition.y = currentEntityPosition.y;
 	}
 	
-	private void initBoundingBoxSize(float percentageWidthReduced, float percentageHeightReduced) {
+	private void initHitBoxSize(float percentageWidthReduced, float percentageHeightReduced) {
 		float widthReductionAmount = 1.0f - percentageWidthReduced; // .8f for 20% (1 - .20)
 		float heightReductionAmount = 1.0f - percentageHeightReduced; // .8f for 20% (1 - .20)
 
@@ -105,31 +114,31 @@ public class Entity {
 		float minX;
 		float minY;
 		if (MapManager.UNIT_SCALE > 0) {
-			minX = nextPlayerPosition.x / MapManager.UNIT_SCALE;
-			minY = nextPlayerPosition.y / MapManager.UNIT_SCALE;
+			minX = nextEntityPosition.x / MapManager.UNIT_SCALE;
+			minY = nextEntityPosition.y / MapManager.UNIT_SCALE;
 		}
-		boundingBox.set(minX, minY, width, height);
+		entityHitBox.set(minX, minY, width, height);
 	}
 
-	private void updateBoundingBox() {	
+	private void updateHitBoxPosition() {	
 		float minX;
 		float minY;
 		if (MapManager.UNIT_SCALE > 0) {
-			minX = nextPlayerPosition.x / MapManager.UNIT_SCALE;
-			minY = nextPlayerPosition.y / MapManager.UNIT_SCALE;
+			minX = nextEntityPosition.x / MapManager.UNIT_SCALE;
+			minY = nextEntityPosition.y / MapManager.UNIT_SCALE;
 		}
-		boundingBox.setPosition(minX, minY);
+		entityHitBox.setPosition(minX, minY);
 	}
 	
 	private String getSpritePath() {
-		return (characterSpritePath==null || characterSpritePath.equals(""))?defaultSpritePath:characterSpritePath;
+		return (entitySpritePath==null || entitySpritePath.equals(""))?defaultSpritePath:entitySpritePath;
 	}
 
 	private void loadDefaultSprite() {
 		Texture texture = Utility.getAssetOfGivenType(getSpritePath(), Texture.class);
 		TextureRegion[][] textureFrames = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
-		frameSprite = new Sprite(textureFrames[0][0].getTexture(), 0, 0, FRAME_WIDTH, FRAME_HEIGHT);
-		currentFrame = textureFrames[0][0];
+		entitySprite = new Sprite(textureFrames[0][0].getTexture(), 0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+		entityTextureRegion = textureFrames[0][0];
 	}
 
 	private void loadAllAnimations() {
@@ -162,58 +171,59 @@ public class Entity {
 	}
 
 	public void dispose() {
-		Utility.unloadAsset(defaultSpritePath);
+		if(Utility.isAssetLoaded(getSpritePath()))
+			Utility.unloadAsset(getSpritePath());
 	}
 
 	public void setState(State state) {
-		this.state = state;
+		this.entityState = state;
 	}
 
 	public Sprite getFrameSprite() {
-		return frameSprite;
+		return entitySprite;
 	}
 
 	public TextureRegion getFrame() {
-		return currentFrame;
+		return entityTextureRegion;
 	}
 
 	public Vector2 getCurrentPosition() {
-		return currentPlayerPosition;
+		return currentEntityPosition;
 	}
 
 	private void setCurrentPosition(float currentPositionX, float currentPositionY) {
-		frameSprite.setX(currentPositionX);
-		frameSprite.setY(currentPositionY);
-		this.currentPlayerPosition.x = currentPositionX;
-		this.currentPlayerPosition.y = currentPositionY;
+		entitySprite.setX(currentPositionX);
+		entitySprite.setY(currentPositionY);
+		this.currentEntityPosition.x = currentPositionX;
+		this.currentEntityPosition.y = currentPositionY;
 	}
 
-	public void setDirection(Direction direction, float deltaTime) {
-		this.currentDirection = direction;
-		switch (currentDirection) { //@formatter:off
-			case DOWN:currentFrame = walkDownAnimation.getKeyFrame(frameTime);break;
-			case LEFT:currentFrame = walkLeftAnimation.getKeyFrame(frameTime);break;
-			case UP:currentFrame = walkUpAnimation.getKeyFrame(frameTime);break;
-			case RIGHT:currentFrame = walkRightAnimation.getKeyFrame(frameTime);break;
+	public void setDirection(Direction direction) {
+		this.currentEntityDirection = direction;
+		switch (currentEntityDirection) { //@formatter:off
+			case DOWN:entityTextureRegion = walkDownAnimation.getKeyFrame(frameTime);break;
+			case LEFT:entityTextureRegion = walkLeftAnimation.getKeyFrame(frameTime);break;
+			case UP:entityTextureRegion = walkUpAnimation.getKeyFrame(frameTime);break;
+			case RIGHT:entityTextureRegion = walkRightAnimation.getKeyFrame(frameTime);break;
 		}//@formatter:on
 	}
 	
 	public void setNextPositionToCurrent() {
-		setCurrentPosition(nextPlayerPosition.x, nextPlayerPosition.y);
+		setCurrentPosition(nextEntityPosition.x, nextEntityPosition.y);
 	}
 	
 	public void calculateNextPosition(Direction currentDirection, float deltaTime) {
-		float testX = currentPlayerPosition.x;
-		float testY = currentPlayerPosition.y;
-		velocity.scl(deltaTime);
+		float testX = currentEntityPosition.x;
+		float testY = currentEntityPosition.y;
+		entityVelocity.scl(deltaTime);
 		switch (currentDirection) { //@formatter:off
-			case LEFT:testX -= velocity.x;break;
-			case RIGHT:testX += velocity.x;break;
-			case UP:testY += velocity.y;break;
-			case DOWN:testY -= velocity.y;break;
+			case LEFT:testX -= entityVelocity.x;break;
+			case RIGHT:testX += entityVelocity.x;break;
+			case UP:testY += entityVelocity.y;break;
+			case DOWN:testY -= entityVelocity.y;break;
 		}//@formatter:on
-		nextPlayerPosition.x = testX;
-		nextPlayerPosition.y = testY;
-		velocity.scl(1 / deltaTime);
+		nextEntityPosition.x = testX;
+		nextEntityPosition.y = testY;
+		entityVelocity.scl(1 / deltaTime);
 	}
 }

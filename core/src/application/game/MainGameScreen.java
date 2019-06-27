@@ -1,11 +1,12 @@
 package application.game;
 
+import java.util.Comparator;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -27,12 +28,10 @@ public class MainGameScreen implements Screen {
 	}
 
 	private PlayerController controller;
-	private TextureRegion currentPlayerFrame;
 	private Sprite currentPlayerSprite;
 
 	private OrthogonalTiledMapRenderer mapRenderer = null;
 	private OrthographicCamera camera = null;
-//	private MapManager mapMgr;
 	
 	private EntityFactory entityFactory;
 	private MapManager mapManager; 
@@ -41,7 +40,6 @@ public class MainGameScreen implements Screen {
 	public MainGameScreen() {
 		mapManager=new MapManager();
 		entityFactory=new EntityFactory(mapManager);
-		
 	}
 
 	@Override
@@ -54,7 +52,7 @@ public class MainGameScreen implements Screen {
 		mapRenderer = new OrthogonalTiledMapRenderer(mapManager.getCurrentMap(), MapManager.UNIT_SCALE);
 		mapRenderer.setView(camera);
 
-		player = entityFactory.getEntity(MapManager.PLAYER, mapManager.getPlayerStartUnitScaled());
+		player = entityFactory.createEntity(MapManager.PLAYER, mapManager.getPlayerStart());
 		entityFactory.initAllEntities();
 
 		currentPlayerSprite = player.getFrameSprite();
@@ -75,20 +73,25 @@ public class MainGameScreen implements Screen {
 		camera.update();		
 		// -----------------blok UPDATE-------------------//
 		entityFactory.updateAllEntites(delta); //tutaj zmieniane jest po³o¿enie hitboxa
-		currentPlayerFrame = player.getFrame();
 
 //		updatePortalLayerActivation(player.boundingBox);
 		
-		if (!isCollisionWithMapLayer(player.boundingBox)) //tutaj sprawdzana jest kolizja hitboxa z map¹
-			player.setNextPositionToCurrent(); //jeœli nie zasz³a kolizja, to next przechodzi na current i sprite przesuwa siê na nowe po³o¿enie
+		for(Entity entity:entityFactory.getEntities()) {
+			if (!isCollisionWithMapLayer(entity.entityHitBox) && !isCollisionBetweenEntities(player, entity)
+					&& !isCollisionPlayerWithEntities(entity)) { //tutaj sprawdzana jest kolizja hitboxa z map¹
+				entity.setNextPositionToCurrent();
+			}
+		}
 		controller.update(delta); //tutaj liczone jest next na podstawie current pozycji
 
 		// -----------------blok UPDATE koniec-------------------//
 		mapRenderer.setView(camera);
 		mapRenderer.render();
 		mapRenderer.getBatch().begin();
-		for(Entity entity:entityFactory.getEntities())
+		entityFactory.getEntities().stream().sorted(Entity.yComparator.reversed()).forEach(entity->{
 			mapRenderer.getBatch().draw(entity.getFrame(), entity.getFrameSprite().getX(), entity.getFrameSprite().getY(), 1, 1);
+		});
+		
 		mapRenderer.getBatch().end();
 	}
 
@@ -106,7 +109,8 @@ public class MainGameScreen implements Screen {
 
 	@Override
 	public void dispose() {
-		player.dispose();
+		for(Entity entity:entityFactory.getEntities())
+			entity.dispose();
 		controller.dispose();
 		Gdx.input.setInputProcessor(null);
 		mapRenderer.dispose();
@@ -155,31 +159,45 @@ public class MainGameScreen implements Screen {
 	private boolean doesGivenLayerExists(MapLayerName layerName) {
 		return (mapManager.getLayer(layerName) != null) ? true : false;
 	}
-
-	private boolean updatePortalLayerActivation(Rectangle boundingBox) {
-		if (doesGivenLayerExists(MapLayerName.MAP_PORTAL_LAYER)) {
-			Rectangle rectangle = null;
-
-			for (MapObject object : mapManager.getLayer(MapLayerName.MAP_PORTAL_LAYER).getObjects()) {
-				if (object instanceof RectangleMapObject) {
-					rectangle = ((RectangleMapObject) object).getRectangle();
-					if (boundingBox.overlaps(rectangle)) {
-						String mapName = object.getName();
-						if (mapName == null) {
-							return false;
-						}
-
-						mapManager.setClosestStartPositionFromScaledUnits(player.getCurrentPosition());
-						mapManager.loadMap(mapName);
-						player.init(mapManager.getPlayerStartUnitScaled().x, mapManager.getPlayerStartUnitScaled().y);
-						mapRenderer.setMap(mapManager.getCurrentMap());
-						Gdx.app.debug(TAG, "Portal Activated");
-						return true;
-					}
-				}
+	
+	private boolean isCollisionBetweenEntities(Entity entity1, Entity entity2) {
+		return (!entity1.equals(entity2) && entity1.entityHitBox.overlaps(entity2.entityHitBox))?true:false;
+	}
+	
+	private boolean isCollisionPlayerWithEntities(Entity playerEntity) {
+		if(playerEntity.equals(player)) {
+			for(Entity entity:entityFactory.getEntities()) {
+				if(isCollisionBetweenEntities(playerEntity, entity))
+					return true;
 			}
 		}
 		return false;
 	}
+
+//	private boolean updatePortalLayerActivation(Rectangle boundingBox) {
+//		if (doesGivenLayerExists(MapLayerName.MAP_PORTAL_LAYER)) {
+//			Rectangle rectangle = null;
+//
+//			for (MapObject object : mapManager.getLayer(MapLayerName.MAP_PORTAL_LAYER).getObjects()) {
+//				if (object instanceof RectangleMapObject) {
+//					rectangle = ((RectangleMapObject) object).getRectangle();
+//					if (boundingBox.overlaps(rectangle)) {
+//						String mapName = object.getName();
+//						if (mapName == null) {
+//							return false;
+//						}
+//
+//						mapManager.setClosestStartPositionFromScaledUnits(player.getCurrentPosition());
+//						mapManager.loadMap(mapName);
+//						player.init(mapManager.getPlayerStartUnitScaled().x, mapManager.getPlayerStartUnitScaled().y);
+//						mapRenderer.setMap(mapManager.getCurrentMap());
+//						Gdx.app.debug(TAG, "Portal Activated");
+//						return true;
+//					}
+//				}
+//			}
+//		}
+//		return false;
+//	}
 
 }

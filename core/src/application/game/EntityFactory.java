@@ -7,6 +7,7 @@ import java.util.Map;
 import com.badlogic.gdx.math.Vector2;
 
 public class EntityFactory {
+//	private static final String TAG = EntityFactory.class.getSimpleName();
 	private List<Entity> entities;
 	private MapManager mapManager;
 
@@ -25,15 +26,13 @@ public class EntityFactory {
 		for (String enemyName : locations.keySet()) {
 			switch (enemyName) {
 				case MapManager.MAGE: {
-					locations.get(MapManager.MAGE).stream().forEach(position -> {
-						getEntity(MapManager.MAGE, position);
-					});
+					for(Vector2 position:locations.get(enemyName))
+						createEntity(MapManager.MAGE, position);
 					break;
 				}
 			}
 		}
 	}
-	//TODO: inne encje s¹ wyœwietlane w punkcie (0,0)
 	
 	public List<Entity> getEntities() {
 		return entities;
@@ -43,17 +42,19 @@ public class EntityFactory {
 		for (Entity entity : entities)
 			entity.update(delta);
 	}
-
-	public Entity getEntity(String entityType, Vector2 position) {
-		Entity entity = null;
-		switch (entityType) { //@formatter:off
-			case MapManager.PLAYER: entity=new Entity("");break;
-			case MapManager.MAGE:entity= new Entity(CHARACTER_FOLDER + MAGE_PATH);break;
-			default:entity= new Entity("");break;
-		} //@formatter:on
+	
+	public Entity createEntity(String entityType, Vector2 position) {
+		Entity entity=getEntity(entityType);
 		entities.add(entity);
-		entity.init(position);
-//		System.out.println(position);
+		entity.init(position, true);
 		return entity;
+	}
+
+	private Entity getEntity(String entityType) {
+		switch (entityType) { //@formatter:off
+			case MapManager.PLAYER: return new Entity("");
+			case MapManager.MAGE:return new Entity(CHARACTER_FOLDER + MAGE_PATH);
+			default:return new Entity("");
+		} //@formatter:on
 	}
 }
