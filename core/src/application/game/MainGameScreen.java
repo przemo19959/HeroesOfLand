@@ -1,7 +1,5 @@
 package application.game;
 
-import java.util.Comparator;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -54,7 +52,7 @@ public class MainGameScreen implements Screen {
 
 		player = entityFactory.createEntity(MapManager.PLAYER, mapManager.getPlayerStart());
 		entityFactory.initAllEntities();
-
+		
 		currentPlayerSprite = player.getFrameSprite();
 		
 		controller = new PlayerController(player);
@@ -140,7 +138,7 @@ public class MainGameScreen implements Screen {
 		Gdx.app.debug(TAG, "WorldRenderer: viewport: (" + VIEWPORT.viewportWidth + "," + VIEWPORT.viewportHeight + ")");
 		Gdx.app.debug(TAG, "WorldRenderer: physical: (" + VIEWPORT.physicalWidth + "," + VIEWPORT.physicalHeight + ")");
 	}
-
+		
 	private boolean isCollisionWithMapLayer(Rectangle boundingBox) {
 		if (doesGivenLayerExists(MapLayerName.MAP_COLLISION_LAYER)) {
 			Rectangle rectangle = null;

@@ -69,7 +69,7 @@ public class Entity {
 		Utility.loadAssetOfGivenType(getSpritePath(), Texture.class);
 		loadDefaultSprite();
 		loadAllAnimations();
-		initHitBoxSize(0, 0.5f);
+		initHitBoxSize(0.45f, 0.55f);
 	}
 
 	/**
@@ -90,13 +90,7 @@ public class Entity {
 		nextEntityPosition.y = startY;
 	}
 	
-	public void init(Vector2 position, boolean scaled) {
-//		currentEntityPosition.x = position.x;
-//		currentEntityPosition.y = position.y;
-//
-//		nextEntityPosition.x = position.x;
-//		nextEntityPosition.y = position.y;
-		
+	public void init(Vector2 position, boolean scaled) {		
 		currentEntityPosition.x = (scaled)?position.x*MapManager.UNIT_SCALE:position.x;
 		currentEntityPosition.y = (scaled)?position.y*MapManager.UNIT_SCALE:position.y;
 		nextEntityPosition.x = currentEntityPosition.x;
