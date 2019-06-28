@@ -1,14 +1,17 @@
 package application.components;
 
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 
 import application.entity.Entity.Direction;
 import application.entity.Entity.State;
+import application.game.MainGameScreen;
 
 public class EnemyInputComponent extends InputComponent {
-	private float frameTime;
-
+//	private float frameTime;
+	private float followDistance=10f;
+	
 	public EnemyInputComponent() {
+		
 	}
 
 	@Override
@@ -53,15 +56,14 @@ public class EnemyInputComponent extends InputComponent {
 
 	@Override
 	public void update(float delta) {
-		frameTime+=delta;
-		if(frameTime > MathUtils.random(1, 5)) {
-			entity.setCurrentEntityDirection(Direction.getRandomDirection());
-			entity.setState(State.getRandomState());
-			frameTime = 0.0f;
-		}
-		entity.clearAllDirectionFlags();
-		entity.setDirectionFlag(entity.getCurrentEntityDirection(), true);
-		moveEntity(delta, entity.getCurrentEntityDirection(), entity.getEntityState());
+		followPlayer(delta, entity.getCurrentEntityDirection(), entity.getEntityState());
 	}
-
+	
+	private void followPlayer(float delta, Direction direction, State state) {
+		Vector2 playerPosition=MainGameScreen.player.getCurrentPosition();
+		if(playerPosition.dst2(entity.getCurrentPosition())<followDistance) {
+			entity.calculateNextPositionToward(playerPosition.cpy(), delta);
+			entity.setDirection(direction);
+		}
+	}
 }

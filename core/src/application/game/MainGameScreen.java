@@ -35,7 +35,7 @@ public class MainGameScreen implements Screen {
 	
 	private EntityFactory entityFactory;
 	private MapManager mapManager; 
-	private Entity player;
+	public static Entity player;
 
 	public MainGameScreen() {
 		mapManager=new MapManager();
@@ -55,10 +55,7 @@ public class MainGameScreen implements Screen {
 		player = entityFactory.createEntity(MapManager.PLAYER, mapManager.getPlayerStart());
 		entityFactory.initAllEntities();
 		
-		currentPlayerSprite = player.getFrameSprite();
-		
-//		playerInputComponent = new PlayerInputComponent(player);
-//		Gdx.input.setInputProcessor(playerInputComponent);
+		currentPlayerSprite = player.getFrameSprite();		
 	}
 
 	@Override
@@ -112,7 +109,6 @@ public class MainGameScreen implements Screen {
 	public void dispose() {
 		for(Entity entity:entityFactory.getEntities())
 			entity.dispose();
-//		playerInputComponent.dispose();
 		Gdx.input.setInputProcessor(null);
 		mapRenderer.dispose();
 	}

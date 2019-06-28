@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
 import application.components.EnemyInputComponent;
@@ -11,9 +12,10 @@ import application.components.PlayerInputComponent;
 import application.maps.MapManager;
 
 public class EntityFactory {
-//	private static final String TAG = EntityFactory.class.getSimpleName();
+	private static final String TAG = EntityFactory.class.getSimpleName();
 	private List<Entity> entities;
 	private MapManager mapManager;
+	private Entity player;
 
 	// sprites paths
 	private static final String CHARACTER_FOLDER = "sprites/characters";
@@ -26,11 +28,11 @@ public class EntityFactory {
 	}
 
 	public void initAllEntities() {
-		Map<String, List<Vector2>> locations = mapManager.getEnemySpawnLocationMap();
-		for (String enemyName : locations.keySet()) {
+		Map<String, List<Vector2>> enemySpawnLocations = mapManager.getEnemySpawnLocationMap();
+		for (String enemyName : enemySpawnLocations.keySet()) {
 			switch (enemyName) {
 				case MapManager.MAGE: {
-					for(Vector2 position:locations.get(enemyName))
+					for(Vector2 position:enemySpawnLocations.get(enemyName))
 						createEntity(MapManager.MAGE, position);
 					break;
 				}
@@ -49,16 +51,18 @@ public class EntityFactory {
 	
 	public Entity createEntity(String entityType, Vector2 position) {
 		Entity entity=getEntity(entityType);
-		entities.add(entity);
-		entity.init(position, true);
+		if(entity!=null) {
+			entities.add(entity);
+			entity.init(position, true);
+		}
 		return entity;
 	}
 
 	private Entity getEntity(String entityType) {
 		switch (entityType) { //@formatter:off
-			case MapManager.PLAYER:return new Entity("", new PlayerInputComponent());
+			case MapManager.PLAYER:player=new Entity("", new PlayerInputComponent());return player;
 			case MapManager.MAGE:return new Entity(CHARACTER_FOLDER + MAGE_PATH, new EnemyInputComponent());
-			default:return new Entity("", null);
+			default: Gdx.app.debug(TAG, "Entity type "+entityType+" not defined!!!");return null;
 		} //@formatter:on
 	}
 }

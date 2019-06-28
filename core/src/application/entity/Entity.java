@@ -105,12 +105,12 @@ public class Entity {
 	public Entity(String entitySpritePath, InputComponent inputComponent) {
 		this.entitySpritePath = entitySpritePath;
 		this.inputComponent = inputComponent;
-		inputComponent.setEntity(this);
+		this.inputComponent.setEntity(this);
 		if (inputComponent instanceof PlayerInputComponent)
 			Gdx.input.setInputProcessor(inputComponent);
 		initEntity();
 	}
-
+	
 	private void initEntity() {
 		nextEntityPosition = new Vector2();
 		currentEntityPosition = new Vector2();
@@ -142,18 +142,14 @@ public class Entity {
 	}
 
 	public void init(float startX, float startY) {
-		currentEntityPosition.x = startX;
-		currentEntityPosition.y = startY;
-
-		nextEntityPosition.x = startX;
-		nextEntityPosition.y = startY;
+		currentEntityPosition.set(startX, startY);
+		nextEntityPosition.set(startX,startY);
 	}
 
 	public void init(Vector2 position, boolean scaled) {
 		currentEntityPosition.x = (scaled) ? position.x * MapManager.UNIT_SCALE : position.x;
 		currentEntityPosition.y = (scaled) ? position.y * MapManager.UNIT_SCALE : position.y;
-		nextEntityPosition.x = currentEntityPosition.x;
-		nextEntityPosition.y = currentEntityPosition.y;
+		nextEntityPosition.set(currentEntityPosition);
 	}
 
 	private void initHitBoxSize(float percentageWidthReduced, float percentageHeightReduced) {
@@ -283,4 +279,18 @@ public class Entity {
 		nextEntityPosition.y = testY;
 		entityVelocity.scl(1 / deltaTime);
 	}
+	
+	public void calculateNextPositionToward(Vector2 endPosition, float deltaTime) {
+		float testX = currentEntityPosition.x;
+		float testY = currentEntityPosition.y;
+		entityVelocity.scl(deltaTime);
+		
+		Vector2 direction=endPosition.sub(currentEntityPosition).nor();
+		testX+=direction.x*entityVelocity.x;
+		testY+=direction.y*entityVelocity.y;
+		
+		nextEntityPosition.x = testX;
+		nextEntityPosition.y = testY;
+		entityVelocity.scl(1 / deltaTime);
+	}	
 }
