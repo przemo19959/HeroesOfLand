@@ -46,14 +46,15 @@ public class Entity {
 	public final int FRAME_WIDTH = 16;
 	public final int FRAME_HEIGHT = 16;
 	public Rectangle entityHitBox;
-	
-	public final static Comparator<Entity> yComparator=((entity1, entity2)->Float.compare(entity1.currentEntityPosition.y, entity2.currentEntityPosition.y));
+
+	public final static Comparator<Entity> yComparator = ((entity1, entity2) -> Float
+			.compare(entity1.currentEntityPosition.y, entity2.currentEntityPosition.y));
 	private InputComponent inputComponent;
-	
+
 	public Vector2 getNextPlayerPosition() {
 		return nextEntityPosition;
 	}
-	
+
 	public void setCurrentEntityDirection(Direction currentEntityDirection) {
 		this.currentEntityDirection = currentEntityDirection;
 	}
@@ -61,7 +62,7 @@ public class Entity {
 	public void setEntityState(State entityState) {
 		this.entityState = entityState;
 	}
-	
+
 	public Direction getCurrentEntityDirection() {
 		return currentEntityDirection;
 	}
@@ -72,7 +73,7 @@ public class Entity {
 
 	public enum State {
 		IDLE, WALKING;
-		
+
 		public static State getRandomState() {
 			return State.values()[MathUtils.random(State.values().length - 1)];
 		}
@@ -80,17 +81,32 @@ public class Entity {
 
 	public enum Direction {
 		UP, RIGHT, DOWN, LEFT;
-		
+
 		public static Direction getRandomDirection() {
 			return Direction.values()[MathUtils.random(Direction.values().length - 1)];
 		}
 	}
+	
+	private boolean up,right,down,left;
+	
+	public void setDirectionFlag(Direction direction, boolean value) {
+		switch(direction) {//@formatter:off
+			case UP: up=value;break;
+			case RIGHT: right=value;break;
+			case DOWN: down=value;break;
+			case LEFT: left=value;break;
+		}//@formatter:on
+	}
+	
+	public void clearAllDirectionFlags() {
+		up=down=right=left=false;
+	}
 
 	public Entity(String entitySpritePath, InputComponent inputComponent) {
 		this.entitySpritePath = entitySpritePath;
-		this.inputComponent=inputComponent;
+		this.inputComponent = inputComponent;
 		inputComponent.setEntity(this);
-		if(inputComponent instanceof PlayerInputComponent)
+		if (inputComponent instanceof PlayerInputComponent)
 			Gdx.input.setInputProcessor(inputComponent);
 		initEntity();
 	}
@@ -108,17 +124,20 @@ public class Entity {
 	}
 
 	/**
-	 * Ta metoda aktualizuje czas ramki, tak aby odtwarzany by³ poprawny region tekstury encji. Nastêpnie aktualizowany
-	 * jest hitbox encji (aktualizacja odbywa siê na podstawie zmiennych nastêpnych pozycji postaci).
-	 * @param delta - czas delta klatki
+	 * Ta metoda aktualizuje czas ramki, tak aby odtwarzany by³ poprawny region
+	 * tekstury encji. Nastêpnie aktualizowany jest hitbox encji (aktualizacja
+	 * odbywa siê na podstawie zmiennych nastêpnych pozycji postaci).
+	 * 
+	 * @param delta
+	 *            - czas delta klatki
 	 */
 	public void update(float delta) {
 		frameTime = (frameTime + delta) % 5;
 		updateHitBoxPosition();
 	}
-	
+
 	public void updateInputComponent(float delta) {
-		if(inputComponent!=null)
+		if (inputComponent != null)
 			inputComponent.update(delta);
 	}
 
@@ -129,20 +148,22 @@ public class Entity {
 		nextEntityPosition.x = startX;
 		nextEntityPosition.y = startY;
 	}
-	
-	public void init(Vector2 position, boolean scaled) {		
-		currentEntityPosition.x = (scaled)?position.x*MapManager.UNIT_SCALE:position.x;
-		currentEntityPosition.y = (scaled)?position.y*MapManager.UNIT_SCALE:position.y;
+
+	public void init(Vector2 position, boolean scaled) {
+		currentEntityPosition.x = (scaled) ? position.x * MapManager.UNIT_SCALE : position.x;
+		currentEntityPosition.y = (scaled) ? position.y * MapManager.UNIT_SCALE : position.y;
 		nextEntityPosition.x = currentEntityPosition.x;
 		nextEntityPosition.y = currentEntityPosition.y;
 	}
-	
+
 	private void initHitBoxSize(float percentageWidthReduced, float percentageHeightReduced) {
 		float widthReductionAmount = 1.0f - percentageWidthReduced; // .8f for 20% (1 - .20)
 		float heightReductionAmount = 1.0f - percentageHeightReduced; // .8f for 20% (1 - .20)
 
-		float width=(widthReductionAmount > 0 && widthReductionAmount < 1)?FRAME_WIDTH * widthReductionAmount:FRAME_WIDTH;
-		float height=(heightReductionAmount > 0 && heightReductionAmount < 1)?FRAME_HEIGHT * heightReductionAmount:FRAME_HEIGHT;
+		float width = (widthReductionAmount > 0 && widthReductionAmount < 1) ? FRAME_WIDTH * widthReductionAmount
+				: FRAME_WIDTH;
+		float height = (heightReductionAmount > 0 && heightReductionAmount < 1) ? FRAME_HEIGHT * heightReductionAmount
+				: FRAME_HEIGHT;
 		if (width == 0 || height == 0)
 			Gdx.app.debug(TAG, "Width and Height are 0!! " + width + ":" + height);
 		float minX;
@@ -154,7 +175,7 @@ public class Entity {
 		entityHitBox.set(minX, minY, width, height);
 	}
 
-	private void updateHitBoxPosition() {	
+	private void updateHitBoxPosition() {
 		float minX;
 		float minY;
 		if (MapManager.UNIT_SCALE > 0) {
@@ -163,9 +184,9 @@ public class Entity {
 		}
 		entityHitBox.setPosition(minX, minY);
 	}
-	
+
 	private String getSpritePath() {
-		return (entitySpritePath==null || entitySpritePath.equals(""))?defaultSpritePath:entitySpritePath;
+		return (entitySpritePath == null || entitySpritePath.equals("")) ? defaultSpritePath : entitySpritePath;
 	}
 
 	private void loadDefaultSprite() {
@@ -205,7 +226,7 @@ public class Entity {
 	}
 
 	public void dispose() {
-		if(Utility.isAssetLoaded(getSpritePath()))
+		if (Utility.isAssetLoaded(getSpritePath()))
 			Utility.unloadAsset(getSpritePath());
 	}
 
@@ -241,21 +262,23 @@ public class Entity {
 			case RIGHT:entityTextureRegion = walkRightAnimation.getKeyFrame(frameTime);break;
 		}//@formatter:on
 	}
-	
+
 	public void setNextPositionToCurrent() {
 		setCurrentPosition(nextEntityPosition.x, nextEntityPosition.y);
 	}
 	
-	public void calculateNextPosition(Direction currentDirection, float deltaTime) {
+	public void calculateNextPosition(float deltaTime) {
 		float testX = currentEntityPosition.x;
 		float testY = currentEntityPosition.y;
 		entityVelocity.scl(deltaTime);
-		switch (currentDirection) { //@formatter:off
-			case LEFT:testX -= entityVelocity.x;break;
-			case RIGHT:testX += entityVelocity.x;break;
-			case UP:testY += entityVelocity.y;break;
-			case DOWN:testY -= entityVelocity.y;break;
-		}//@formatter:on
+		
+		//@formatter:off
+		if (left) testX -= entityVelocity.x;
+		if (right) testX += entityVelocity.x;
+		if (up) testY += entityVelocity.y;
+		if (down) testY -= entityVelocity.y;
+		//@formatter:on
+		
 		nextEntityPosition.x = testX;
 		nextEntityPosition.y = testY;
 		entityVelocity.scl(1 / deltaTime);

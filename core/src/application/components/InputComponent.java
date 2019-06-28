@@ -68,7 +68,7 @@ public abstract class InputComponent implements InputProcessor {
 	}
 
 	protected void moveEntity(float delta, Direction direction, State state) {
-		entity.calculateNextPosition(direction, delta);
+		entity.calculateNextPosition(delta);
 		entity.setState(state);
 		entity.setDirection(direction);
 	}

@@ -59,6 +59,8 @@ public class EnemyInputComponent extends InputComponent {
 			entity.setState(State.getRandomState());
 			frameTime = 0.0f;
 		}
+		entity.clearAllDirectionFlags();
+		entity.setDirectionFlag(entity.getCurrentEntityDirection(), true);
 		moveEntity(delta, entity.getCurrentEntityDirection(), entity.getEntityState());
 	}
 

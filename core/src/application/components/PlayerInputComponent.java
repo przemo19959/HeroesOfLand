@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 
-import application.entity.Entity;
 import application.entity.Entity.Direction;
 import application.entity.Entity.State;
 
@@ -118,24 +117,23 @@ public class PlayerInputComponent extends InputComponent {
 		keys.put(Keys.QUIT, false);
 	}
 	
-	private void processInput(float delta){ //@formatter:off
-		if( keys.get(Keys.LEFT)) moveEntity(delta, Direction.LEFT, State.WALKING);
-		else if( keys.get(Keys.RIGHT)) moveEntity(delta, Direction.RIGHT, State.WALKING);
-		else if( keys.get(Keys.UP)) moveEntity(delta, Direction.UP, State.WALKING);
-		else if(keys.get(Keys.DOWN)) moveEntity(delta, Direction.DOWN, State.WALKING);
-		else if(keys.get(Keys.QUIT)) Gdx.app.exit();
-		else entity.setState(Entity.State.IDLE); //@formatter:on
+	private void processInput(float delta){
+		if(keys.get(Keys.QUIT)) Gdx.app.exit();
+		changeDirectionFlagAndMoveEntity(delta, Keys.LEFT, Direction.LEFT);
+		changeDirectionFlagAndMoveEntity(delta, Keys.RIGHT, Direction.RIGHT);
+		changeDirectionFlagAndMoveEntity(delta, Keys.UP, Direction.UP);
+		changeDirectionFlagAndMoveEntity(delta, Keys.DOWN, Direction.DOWN);
 		
-		//Mouse input
 		if(mouseButtons.get(Mouse.SELECT)) {
 			mouseButtons.put(Mouse.SELECT, false);
 		}
-
 	}
 	
-//	private void moveEntity(float delta, Direction direction, State state) {
-//		entity.calculateNextPosition(direction, delta);
-//		entity.setState(state);
-//		entity.setDirection(direction);
-//	}
+	private void changeDirectionFlagAndMoveEntity(float delta, Keys key, Direction direction) {
+		if(keys.get(key)){
+			entity.setDirectionFlag(direction, true);
+			moveEntity(delta, direction, State.WALKING);
+		}else
+			entity.setDirectionFlag(direction, false);
+	}
 }
