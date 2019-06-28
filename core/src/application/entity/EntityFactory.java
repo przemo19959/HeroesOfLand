@@ -1,10 +1,14 @@
-package application.game;
+package application.entity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import com.badlogic.gdx.math.Vector2;
+
+import application.components.EnemyInputComponent;
+import application.components.PlayerInputComponent;
+import application.maps.MapManager;
 
 public class EntityFactory {
 //	private static final String TAG = EntityFactory.class.getSimpleName();
@@ -52,9 +56,9 @@ public class EntityFactory {
 
 	private Entity getEntity(String entityType) {
 		switch (entityType) { //@formatter:off
-			case MapManager.PLAYER: return new Entity("");
-			case MapManager.MAGE:return new Entity(CHARACTER_FOLDER + MAGE_PATH);
-			default:return new Entity("");
+			case MapManager.PLAYER:return new Entity("", new PlayerInputComponent());
+			case MapManager.MAGE:return new Entity(CHARACTER_FOLDER + MAGE_PATH, new EnemyInputComponent());
+			default:return new Entity("", null);
 		} //@formatter:on
 	}
 }

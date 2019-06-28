@@ -1,49 +1,18 @@
-package application.game;
-
-
-import java.util.HashMap;
-import java.util.Map;
+package application.components;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
 
-import application.game.Entity.Direction;
-import application.game.Entity.State;
+import application.entity.Entity;
+import application.entity.Entity.Direction;
+import application.entity.Entity.State;
 
-public class PlayerController implements InputProcessor {
-
-	enum Keys {
-		LEFT, RIGHT, UP, DOWN, QUIT
-	}
-
-	enum Mouse {
-		SELECT, DOACTION
-	}
-
-	private static Map<Keys, Boolean> keys = new HashMap<PlayerController.Keys, Boolean>();
-	private static Map<Mouse, Boolean> mouseButtons = new HashMap<PlayerController.Mouse, Boolean>();
+public class PlayerInputComponent extends InputComponent {
 	private Vector3 lastMouseCoordinates;
 
-	static {
-		keys.put(Keys.LEFT, false);
-		keys.put(Keys.RIGHT, false);
-		keys.put(Keys.UP, false);
-		keys.put(Keys.DOWN, false);
-		keys.put(Keys.QUIT, false);
-	};
-
-	static {
-		mouseButtons.put(Mouse.SELECT, false);
-		mouseButtons.put(Mouse.DOACTION, false);
-	};
-
-	private Entity player;
-
-	public PlayerController(Entity player){
+	public PlayerInputComponent() {
 		this.lastMouseCoordinates = new Vector3();
-		this.player = player;
 	}
 
 	@Override
@@ -135,9 +104,11 @@ public class PlayerController implements InputProcessor {
 	 * jest aktualna ramka postaci
 	 * @param delta - czas delta
 	 */
-	public void update(float delta){
+	@Override
+	public void update(float delta) {
 		processInput(delta);
 	}
+	
 	
 	public static void hide(){
 		keys.put(Keys.LEFT, false);
@@ -153,7 +124,7 @@ public class PlayerController implements InputProcessor {
 		else if( keys.get(Keys.UP)) moveEntity(delta, Direction.UP, State.WALKING);
 		else if(keys.get(Keys.DOWN)) moveEntity(delta, Direction.DOWN, State.WALKING);
 		else if(keys.get(Keys.QUIT)) Gdx.app.exit();
-		else player.setState(Entity.State.IDLE); //@formatter:on
+		else entity.setState(Entity.State.IDLE); //@formatter:on
 		
 		//Mouse input
 		if(mouseButtons.get(Mouse.SELECT)) {
@@ -162,9 +133,9 @@ public class PlayerController implements InputProcessor {
 
 	}
 	
-	private void moveEntity(float delta, Direction direction, State state) {
-		player.calculateNextPosition(direction, delta);
-		player.setState(state);
-		player.setDirection(direction);
-	}
+//	private void moveEntity(float delta, Direction direction, State state) {
+//		entity.calculateNextPosition(direction, delta);
+//		entity.setState(state);
+//		entity.setDirection(direction);
+//	}
 }

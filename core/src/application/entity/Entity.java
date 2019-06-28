@@ -1,4 +1,4 @@
-package application.game;
+package application.entity;
 
 import java.util.Comparator;
 
@@ -7,9 +7,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+
+import application.components.InputComponent;
+import application.components.PlayerInputComponent;
+import application.game.Utility;
+import application.maps.MapManager;
 
 public class Entity {
 	private static final String TAG = Entity.class.getSimpleName();
@@ -42,21 +48,50 @@ public class Entity {
 	public Rectangle entityHitBox;
 	
 	public final static Comparator<Entity> yComparator=((entity1, entity2)->Float.compare(entity1.currentEntityPosition.y, entity2.currentEntityPosition.y));
+	private InputComponent inputComponent;
 	
 	public Vector2 getNextPlayerPosition() {
 		return nextEntityPosition;
 	}
 	
+	public void setCurrentEntityDirection(Direction currentEntityDirection) {
+		this.currentEntityDirection = currentEntityDirection;
+	}
+
+	public void setEntityState(State entityState) {
+		this.entityState = entityState;
+	}
+	
+	public Direction getCurrentEntityDirection() {
+		return currentEntityDirection;
+	}
+
+	public State getEntityState() {
+		return entityState;
+	}
+
 	public enum State {
-		IDLE, WALKING
+		IDLE, WALKING;
+		
+		public static State getRandomState() {
+			return State.values()[MathUtils.random(State.values().length - 1)];
+		}
 	}
 
 	public enum Direction {
 		UP, RIGHT, DOWN, LEFT;
+		
+		public static Direction getRandomDirection() {
+			return Direction.values()[MathUtils.random(Direction.values().length - 1)];
+		}
 	}
 
-	public Entity(String entitySpritePath) {
+	public Entity(String entitySpritePath, InputComponent inputComponent) {
 		this.entitySpritePath = entitySpritePath;
+		this.inputComponent=inputComponent;
+		inputComponent.setEntity(this);
+		if(inputComponent instanceof PlayerInputComponent)
+			Gdx.input.setInputProcessor(inputComponent);
 		initEntity();
 	}
 
@@ -80,6 +115,11 @@ public class Entity {
 	public void update(float delta) {
 		frameTime = (frameTime + delta) % 5;
 		updateHitBoxPosition();
+	}
+	
+	public void updateInputComponent(float delta) {
+		if(inputComponent!=null)
+			inputComponent.update(delta);
 	}
 
 	public void init(float startX, float startY) {

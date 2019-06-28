@@ -10,7 +10,10 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
-import application.game.MapManager.MapLayerName;
+import application.entity.Entity;
+import application.entity.EntityFactory;
+import application.maps.MapManager;
+import application.maps.MapManager.MapLayerName;
 
 public class MainGameScreen implements Screen {
 	private static final String TAG = MainGameScreen.class.getSimpleName();
@@ -25,7 +28,6 @@ public class MainGameScreen implements Screen {
 		static float aspectRatio;
 	}
 
-	private PlayerController controller;
 	private Sprite currentPlayerSprite;
 
 	private OrthogonalTiledMapRenderer mapRenderer = null;
@@ -55,8 +57,8 @@ public class MainGameScreen implements Screen {
 		
 		currentPlayerSprite = player.getFrameSprite();
 		
-		controller = new PlayerController(player);
-		Gdx.input.setInputProcessor(controller);
+//		playerInputComponent = new PlayerInputComponent(player);
+//		Gdx.input.setInputProcessor(playerInputComponent);
 	}
 
 	@Override
@@ -80,7 +82,9 @@ public class MainGameScreen implements Screen {
 				entity.setNextPositionToCurrent();
 			}
 		}
-		controller.update(delta); //tutaj liczone jest next na podstawie current pozycji
+		
+		for(Entity entity:entityFactory.getEntities())
+			entity.updateInputComponent(delta);
 
 		// -----------------blok UPDATE koniec-------------------//
 		mapRenderer.setView(camera);
@@ -89,7 +93,6 @@ public class MainGameScreen implements Screen {
 		entityFactory.getEntities().stream().sorted(Entity.yComparator.reversed()).forEach(entity->{
 			mapRenderer.getBatch().draw(entity.getFrame(), entity.getFrameSprite().getX(), entity.getFrameSprite().getY(), 1, 1);
 		});
-		
 		mapRenderer.getBatch().end();
 	}
 
@@ -109,7 +112,7 @@ public class MainGameScreen implements Screen {
 	public void dispose() {
 		for(Entity entity:entityFactory.getEntities())
 			entity.dispose();
-		controller.dispose();
+//		playerInputComponent.dispose();
 		Gdx.input.setInputProcessor(null);
 		mapRenderer.dispose();
 	}

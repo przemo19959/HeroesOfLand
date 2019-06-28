@@ -1,4 +1,4 @@
-package application.game;
+package application.maps;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapLayer;
@@ -6,6 +6,8 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.*;
+
+import application.game.Utility;
 
 import java.util.ArrayList;
 import java.util.HashMap;
