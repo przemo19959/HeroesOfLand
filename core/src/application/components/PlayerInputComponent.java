@@ -2,10 +2,14 @@ package application.components;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import application.entity.Entity.Direction;
 import application.entity.Entity.State;
+import application.game.MainGameScreen;
+import application.maps.MapManager;
+import application.projectiles.ProjectileManager;
 
 public class PlayerInputComponent extends InputComponent {
 	private Vector3 lastMouseCoordinates;
@@ -20,6 +24,7 @@ public class PlayerInputComponent extends InputComponent {
 		if( keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) setKeyState(Keys.RIGHT, true);
 		if( keycode == Input.Keys.UP || keycode == Input.Keys.W) setKeyState(Keys.UP, true);
 		if( keycode == Input.Keys.DOWN || keycode == Input.Keys.S) setKeyState(Keys.DOWN, true);
+		if (keycode==Input.Keys.P) setKeyState(Keys.FIRE, true);
 		if( keycode == Input.Keys.Q) setKeyState(Keys.QUIT, true);
 		return true; //@formatter:on
 	}
@@ -30,6 +35,7 @@ public class PlayerInputComponent extends InputComponent {
 		if( keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) setKeyState(Keys.RIGHT, false);
 		if( keycode == Input.Keys.UP || keycode == Input.Keys.W ) setKeyState(Keys.UP, false);
 		if( keycode == Input.Keys.DOWN || keycode == Input.Keys.S) setKeyState(Keys.DOWN, false);
+		if (keycode==Input.Keys.P) setKeyState(Keys.FIRE, false);
 		if( keycode == Input.Keys.Q) setKeyState(Keys.QUIT, false);
 		return true; //@formatter:on
 	}
@@ -79,6 +85,7 @@ public class PlayerInputComponent extends InputComponent {
 		
 	public void setClickedMouseCoordinates(int x,int y){
 		lastMouseCoordinates.set(x, y, 0);
+		MainGameScreen.camera.unproject(lastMouseCoordinates);
 	}
 	
 	public void selectMouseButtonPressed(){
@@ -127,8 +134,21 @@ public class PlayerInputComponent extends InputComponent {
 		if(mouseButtons.get(Mouse.SELECT)) {
 			mouseButtons.put(Mouse.SELECT, false);
 		}
+		
+		if(mouseButtons.get(Mouse.DOACTION)) {
+			mouseButtons.put(Mouse.DOACTION, false);
+			ProjectileManager.createProjectile(entity,ProjectileManager.FIRE_BALL,MainGameScreen.player.getCurrentPosition(),
+			                                   getScaledMouseXYCoordinates(false));
+		}
 	}
 	
+	private Vector2 getScaledMouseXYCoordinates(boolean scaled) {
+		Vector2 point=new Vector2();
+		point.x=(scaled)?lastMouseCoordinates.x*MapManager.UNIT_SCALE:lastMouseCoordinates.x;
+		point.y=(scaled)?lastMouseCoordinates.y*MapManager.UNIT_SCALE:lastMouseCoordinates.y;
+		return point;
+	}
+		
 	private void changeDirectionFlagAndMoveEntity(float delta, Keys key, Direction direction) {
 		if(keys.get(key)){
 			entity.setDirectionFlag(direction, true);

@@ -14,6 +14,8 @@ import application.entity.Entity;
 import application.entity.EntityFactory;
 import application.maps.MapManager;
 import application.maps.MapManager.MapLayerName;
+import application.projectiles.Projectile;
+import application.projectiles.ProjectileManager;
 
 public class MainGameScreen implements Screen {
 	private static final String TAG = MainGameScreen.class.getSimpleName();
@@ -31,15 +33,18 @@ public class MainGameScreen implements Screen {
 	private Sprite currentPlayerSprite;
 
 	private OrthogonalTiledMapRenderer mapRenderer = null;
-	private OrthographicCamera camera = null;
+	public static OrthographicCamera camera = null;
 	
 	private EntityFactory entityFactory;
 	private MapManager mapManager; 
+	private ProjectileManager projectileManager;
+	
 	public static Entity player;
 
 	public MainGameScreen() {
 		mapManager=new MapManager();
 		entityFactory=new EntityFactory(mapManager);
+		projectileManager=new ProjectileManager();
 	}
 
 	@Override
@@ -70,7 +75,7 @@ public class MainGameScreen implements Screen {
 		camera.update();		
 		// -----------------blok UPDATE-------------------//
 		entityFactory.updateAllEntites(delta); //tutaj zmieniane jest po³o¿enie hitboxa
-
+		projectileManager.updateProjectiles(delta);
 //		updatePortalLayerActivation(player.boundingBox);
 		
 		for(Entity entity:entityFactory.getEntities()) {
@@ -80,8 +85,23 @@ public class MainGameScreen implements Screen {
 			}
 		}
 		
+		for(Projectile projectile:projectileManager.getProjectiles()) {
+			if(!isCollisionWithMapLayer(projectile.getProjectileHitBox()) && 
+					!isCollisionBetweenProjectileAndEntities(projectile)){
+					projectile.onNoCollision();
+			}
+			else {
+				projectileManager.removeProjectile(projectile);
+				//tutaj, gdy nast¹pi³a kolizja pocisku i encji lub mapy
+			}
+		}
+		
 		for(Entity entity:entityFactory.getEntities())
 			entity.updateInputComponent(delta);
+		
+		for(Projectile projectile:projectileManager.getProjectiles()) {
+			projectile.updateAfterCollisionTest(delta);
+		}
 
 		// -----------------blok UPDATE koniec-------------------//
 		mapRenderer.setView(camera);
@@ -89,6 +109,9 @@ public class MainGameScreen implements Screen {
 		mapRenderer.getBatch().begin();
 		entityFactory.getEntities().stream().sorted(Entity.yComparator.reversed()).forEach(entity->{
 			mapRenderer.getBatch().draw(entity.getFrame(), entity.getFrameSprite().getX(), entity.getFrameSprite().getY(), 1, 1);
+		});
+		projectileManager.getProjectiles().forEach(projectile->{
+			mapRenderer.getBatch().draw(projectile.getProjectileTextureRegion(), projectile.getProjectileSprite().getX(), projectile.getProjectileSprite().getY(),1,1);
 		});
 		mapRenderer.getBatch().end();
 	}
@@ -138,13 +161,13 @@ public class MainGameScreen implements Screen {
 		Gdx.app.debug(TAG, "WorldRenderer: physical: (" + VIEWPORT.physicalWidth + "," + VIEWPORT.physicalHeight + ")");
 	}
 		
-	private boolean isCollisionWithMapLayer(Rectangle boundingBox) {
+	private boolean isCollisionWithMapLayer(Rectangle hitBox) {
 		if (doesGivenLayerExists(MapLayerName.MAP_COLLISION_LAYER)) {
 			Rectangle rectangle = null;
 			for (MapObject object : mapManager.getLayer(MapLayerName.MAP_COLLISION_LAYER).getObjects()) {
 				if (object instanceof RectangleMapObject) {
 					rectangle = ((RectangleMapObject) object).getRectangle();
-					if (boundingBox.overlaps(rectangle)) {
+					if (hitBox.overlaps(rectangle)) {
 						return true;
 					}
 				}
@@ -152,13 +175,21 @@ public class MainGameScreen implements Screen {
 		}
 		return false;
 	}
-
+		
 	private boolean doesGivenLayerExists(MapLayerName layerName) {
 		return (mapManager.getLayer(layerName) != null) ? true : false;
 	}
 	
 	private boolean isCollisionBetweenEntities(Entity entity1, Entity entity2) {
 		return (!entity1.equals(entity2) && entity1.entityHitBox.overlaps(entity2.entityHitBox))?true:false;
+	}
+	
+	private boolean isCollisionBetweenProjectileAndEntities(Projectile projectile) {
+		for(Entity entity:entityFactory.getEntities()) {
+			if(!projectile.getCaster().equals(entity) && projectile.getProjectileHitBox().overlaps(entity.entityHitBox))
+				return true;
+		}
+		return false;
 	}
 	
 	private boolean isCollisionPlayerWithEntities(Entity playerEntity) {

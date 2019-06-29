@@ -155,11 +155,9 @@ public class Entity {
 	private void initHitBoxSize(float percentageWidthReduced, float percentageHeightReduced) {
 		float widthReductionAmount = 1.0f - percentageWidthReduced; // .8f for 20% (1 - .20)
 		float heightReductionAmount = 1.0f - percentageHeightReduced; // .8f for 20% (1 - .20)
-
-		float width = (widthReductionAmount > 0 && widthReductionAmount < 1) ? FRAME_WIDTH * widthReductionAmount
-				: FRAME_WIDTH;
-		float height = (heightReductionAmount > 0 && heightReductionAmount < 1) ? FRAME_HEIGHT * heightReductionAmount
-				: FRAME_HEIGHT;
+		//@formatter:off
+		float width = (widthReductionAmount > 0 && widthReductionAmount < 1) ? FRAME_WIDTH * widthReductionAmount: FRAME_WIDTH;
+		float height = (heightReductionAmount > 0 && heightReductionAmount < 1) ? FRAME_HEIGHT * heightReductionAmount: FRAME_HEIGHT; //@formatter:on
 		if (width == 0 || height == 0)
 			Gdx.app.debug(TAG, "Width and Height are 0!! " + width + ":" + height);
 		float minX;

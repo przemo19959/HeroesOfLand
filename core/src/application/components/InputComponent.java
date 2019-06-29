@@ -25,7 +25,7 @@ public abstract class InputComponent implements InputProcessor {
 		UP,
 		DOWN,
 		QUIT,
-		PAUSE
+		FIRE
 	}
 	
 	/**
@@ -45,7 +45,7 @@ public abstract class InputComponent implements InputProcessor {
 		keys.put(Keys.UP, false);
 		keys.put(Keys.DOWN, false);
 		keys.put(Keys.QUIT, false);
-		keys.put(Keys.PAUSE, false);
+		keys.put(Keys.FIRE, false);
 	};
 
 	static {

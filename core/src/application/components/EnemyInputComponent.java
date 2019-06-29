@@ -56,7 +56,7 @@ public class EnemyInputComponent extends InputComponent {
 
 	@Override
 	public void update(float delta) {
-		followPlayer(delta, entity.getCurrentEntityDirection(), entity.getEntityState());
+//		followPlayer(delta, entity.getCurrentEntityDirection(), entity.getEntityState()); //tymczasowo
 	}
 	
 	private void followPlayer(float delta, Direction direction, State state) {
