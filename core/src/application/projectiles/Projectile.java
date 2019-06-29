@@ -15,6 +15,7 @@ import application.maps.MapManager;
 
 public class Projectile {
 	private static final String TAG = Projectile.class.getSimpleName();
+
 	private String projectileSpritePath;
 	private Vector2 projectileVelocity;
 
@@ -30,43 +31,50 @@ public class Projectile {
 	public final int FRAME_WIDTH = 16;
 	public final int FRAME_HEIGHT = 16;
 	public Rectangle projectileHitBox;
-	
+
 	private Vector2 fireDirection;
 	private Vector2 finishPosition;
 	private final Entity caster;
-	
- 	public Entity getCaster() {
+
+	public Entity getCaster() {
 		return caster;
 	}
 
-	private boolean projectileCollided;
-	
-	public boolean isProjectileCollided() {
-		return projectileCollided;
-	}
-
-	public void setProjectileCollided(boolean projectileCollided) {
-		this.projectileCollided = projectileCollided;
-	}
-
-	public Projectile(Entity caster,String projectileSpritePath,Vector2 startPosition, Vector2 endPosition) {
+	public Projectile setProjectileSpritePath(String projectileSpritePath) {
 		this.projectileSpritePath = projectileSpritePath;
-		this.caster=caster;
-		currentProjectilePosition=new Vector2(startPosition);
-		nextProjectilePosition=new Vector2(startPosition);
-		finishPosition=new Vector2(endPosition);		
-		projectileHitBox = new Rectangle();
-		projectileVelocity = new Vector2(4f, 4f);
-		
 		if(!Utility.isAssetLoaded(projectileSpritePath))
 			Utility.loadAssetOfGivenType(this.projectileSpritePath, Texture.class);
-		
-		fireDirection=new Vector2(finishPosition.sub(currentProjectilePosition).nor());
+		return this;
+	}
+
+	public Projectile setStartPosition(Vector2 startPosition) {
+		currentProjectilePosition = new Vector2(startPosition);
+		nextProjectilePosition = new Vector2(startPosition);
+		return this;
+	}
+
+	public Projectile setEndPosition(Vector2 endPosition) {
+		finishPosition = new Vector2(endPosition);
+		return this;
+	}
+
+	public Projectile(Entity caster) {
+		this.caster = caster;
+		projectileHitBox = new Rectangle();
+		projectileVelocity = new Vector2(4f, 4f);
+	}
+	
+	/**
+	 * Zawsze musi byæ wywo³ana na koniec ³añcucha buildera
+	 */
+	public Projectile build() {
+		fireDirection = new Vector2(finishPosition.sub(currentProjectilePosition).nor());
 		loadDefaultSprite();
 		loadAllAnimations(7);
 		initHitBoxSize(0.5f, 0.5f);
+		return this;
 	}
-	
+
 	public Sprite getProjectileSprite() {
 		return projectileSprite;
 	}
@@ -78,20 +86,20 @@ public class Projectile {
 	public Rectangle getProjectileHitBox() {
 		return projectileHitBox;
 	}
-	
+
 	public void update(float delta) {
 		frameTime = (frameTime + delta) % 5;
 		updateHitBoxPosition();
 	}
-		
+
 	private void updateHitBoxPosition() {
 		float minX;
 		float minY;
-		if (MapManager.UNIT_SCALE > 0) {
+		if(MapManager.UNIT_SCALE > 0) {
 			minX = nextProjectilePosition.x / MapManager.UNIT_SCALE;
 			minY = nextProjectilePosition.y / MapManager.UNIT_SCALE;
 		}
-		projectileHitBox.setPosition(minX,minY);
+		projectileHitBox.setPosition(minX, minY);
 	}
 
 	private void loadDefaultSprite() {
@@ -116,48 +124,48 @@ public class Projectile {
 
 		animation = new Animation<>(0.5f, frames, Animation.PlayMode.NORMAL);
 	}
-	
+
 	private void initHitBoxSize(float percentageWidthReduced, float percentageHeightReduced) {
 		float widthReductionAmount = 1.0f - percentageWidthReduced; // .8f for 20% (1 - .20)
 		float heightReductionAmount = 1.0f - percentageHeightReduced; // .8f for 20% (1 - .20)
 		//@formatter:off
 		float width = (widthReductionAmount > 0 && widthReductionAmount < 1) ? FRAME_WIDTH * widthReductionAmount: FRAME_WIDTH;
 		float height = (heightReductionAmount > 0 && heightReductionAmount < 1) ? FRAME_HEIGHT * heightReductionAmount: FRAME_HEIGHT; //@formatter:on
-		if (width == 0 || height == 0)
+		if(width == 0 || height == 0)
 			Gdx.app.debug(TAG, "Width and Height are 0!! " + width + ":" + height);
 		float minX;
 		float minY;
-		if (MapManager.UNIT_SCALE > 0) {
+		if(MapManager.UNIT_SCALE > 0) {
 			minX = nextProjectilePosition.x / MapManager.UNIT_SCALE;
 			minY = nextProjectilePosition.y / MapManager.UNIT_SCALE;
 		}
 		projectileHitBox.set(minX, minY, width, height);
 	}
-		
+
 	public void calculateNextPosition(float deltaTime) {
-		Vector2 tmp=new Vector2(currentProjectilePosition);
+		Vector2 tmp = new Vector2(currentProjectilePosition);
 		projectileVelocity.scl(deltaTime);
-		tmp.add(fireDirection.x*projectileVelocity.x, fireDirection.y*projectileVelocity.y);
-		nextProjectilePosition.set(tmp);		
+		tmp.add(fireDirection.x * projectileVelocity.x, fireDirection.y * projectileVelocity.y);
+		nextProjectilePosition.set(tmp);
 		projectileVelocity.scl(1 / deltaTime);
 	}
-	
+
 	private void setCurrentPosition(float currentPositionX, float currentPositionY) {
 		projectileSprite.setX(currentPositionX);
 		projectileSprite.setY(currentPositionY);
 		currentProjectilePosition.set(currentPositionX, currentPositionY);
 	}
-	
+
 	public void onNoCollision() {
-		setCurrentPosition(nextProjectilePosition.x, nextProjectilePosition.y);	
+		setCurrentPosition(nextProjectilePosition.x, nextProjectilePosition.y);
 	}
-	
+
 	public void updateAfterCollisionTest(float deltaTime) {
 		calculateNextPosition(deltaTime);
 		projectileTextureRegion = animation.getKeyFrame(frameTime);
 	}
-	
+
 	public void onCollision() {
-		
+
 	}
 }
