@@ -137,7 +137,8 @@ public class PlayerInputComponent extends InputComponent {
 		
 		if(mouseButtons.get(Mouse.DOACTION)) {
 			mouseButtons.put(Mouse.DOACTION, false);
-			ProjectileManager.createProjectile(entity,ProjectileManager.FIRE_BALL,MainGameScreen.player.getCurrentPosition(),
+//			System.out.println(entity.getFrameSprite().getX()+", "+entity.getFrameSprite().getY());
+			ProjectileManager.createProjectile(entity,ProjectileManager.FIRE_BALL,ProjectileManager.FIRE_EXPLOSION,MainGameScreen.player.getCurrentPosition(),
 			                                   getScaledMouseXYCoordinates(false));
 		}
 	}

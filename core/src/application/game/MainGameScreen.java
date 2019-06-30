@@ -2,9 +2,12 @@ package application.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -29,11 +32,12 @@ public class MainGameScreen implements Screen {
 		static float physicalHeight;
 		static float aspectRatio;
 	}
-
+	
 	private Sprite currentPlayerSprite;
-
 	private OrthogonalTiledMapRenderer mapRenderer = null;
 	public static OrthographicCamera camera = null;
+//	private ShapeRenderer shapeRenderer;
+	
 	
 	private EntityFactory entityFactory;
 	private MapManager mapManager; 
@@ -60,7 +64,8 @@ public class MainGameScreen implements Screen {
 		player = entityFactory.createEntity(MapManager.PLAYER, mapManager.getPlayerStart());
 		entityFactory.initAllEntities();
 		
-		currentPlayerSprite = player.getFrameSprite();		
+		currentPlayerSprite = player.getFrameSprite();
+//		shapeRenderer=new ShapeRenderer();
 	}
 
 	@Override
@@ -88,10 +93,11 @@ public class MainGameScreen implements Screen {
 		for(Projectile projectile:projectileManager.getProjectiles()) {
 			if(!isCollisionWithMapLayer(projectile.getProjectileHitBox()) && 
 					!isCollisionBetweenProjectileAndEntities(projectile)){
-					projectile.onNoCollision();
-			}
-			else {
-				projectileManager.removeProjectile(projectile);
+					projectile.onNoCollision(delta);
+//					projectile.updateAfterCollisionTest(delta);
+			}else {
+				if(projectile.onCollision())
+					projectileManager.removeProjectile(projectile);
 				//tutaj, gdy nast¹pi³a kolizja pocisku i encji lub mapy
 			}
 		}
@@ -99,21 +105,35 @@ public class MainGameScreen implements Screen {
 		for(Entity entity:entityFactory.getEntities())
 			entity.updateInputComponent(delta);
 		
-		for(Projectile projectile:projectileManager.getProjectiles()) {
-			projectile.updateAfterCollisionTest(delta);
-		}
+//		for(Projectile projectile:projectileManager.getProjectiles()) {
+//			projectile.updateAfterCollisionTest(delta);
+//		}
 
 		// -----------------blok UPDATE koniec-------------------//
 		mapRenderer.setView(camera);
+//		shapeRenderer.setProjectionMatrix(camera.combined);
 		mapRenderer.render();
 		mapRenderer.getBatch().begin();
+//		shapeRenderer.begin(ShapeType.Line);
+//		shapeRenderer.setColor(Color.GREEN);
 		entityFactory.getEntities().stream().sorted(Entity.yComparator.reversed()).forEach(entity->{
 			mapRenderer.getBatch().draw(entity.getFrame(), entity.getFrameSprite().getX(), entity.getFrameSprite().getY(), 1, 1);
+			//To rysuje obwód hitboxa encji
+//			shapeRenderer.rect(entity.entityHitBox.x*MapManager.UNIT_SCALE, entity.entityHitBox.y*MapManager.UNIT_SCALE
+//			                   , entity.entityHitBox.width*MapManager.UNIT_SCALE, entity.entityHitBox.height*MapManager.UNIT_SCALE);
 		});
 		projectileManager.getProjectiles().forEach(projectile->{
-			mapRenderer.getBatch().draw(projectile.getProjectileTextureRegion(), projectile.getProjectileSprite().getX(), projectile.getProjectileSprite().getY(),1,1);
+			mapRenderer.getBatch().draw(projectile.getProjectileTextureRegion(), projectile.getProjectileSprite().getX(), projectile.getProjectileSprite().getY(),
+			                            (projectile.getProjectileSprite().getWidth()*MapManager.UNIT_SCALE)/2, (projectile.getProjectileSprite().getHeight()*MapManager.UNIT_SCALE)/2,
+			                            1, 1, 1, 1, projectile.getRotationAngle());
+//			shapeRenderer.rect(projectile.getProjectileHitBox().x*MapManager.UNIT_SCALE, projectile.getProjectileHitBox().y*MapManager.UNIT_SCALE
+//			                   , projectile.getProjectileHitBox().width*MapManager.UNIT_SCALE, projectile.getProjectileHitBox().height*MapManager.UNIT_SCALE);
+//			shapeRenderer.rect(projectile.getProjectileSprite().getX(), projectile.getProjectileSprite().getY()
+//			                   , projectile.getProjectileSprite().getWidth()*MapManager.UNIT_SCALE, projectile.getProjectileSprite().getHeight()*MapManager.UNIT_SCALE);
 		});
 		mapRenderer.getBatch().end();
+		
+//		shapeRenderer.end();
 	}
 
 	@Override

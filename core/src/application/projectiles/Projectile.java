@@ -17,9 +17,11 @@ public class Projectile {
 	private static final String TAG = Projectile.class.getSimpleName();
 
 	private String projectileSpritePath;
+	private String explosionSpritePath;
 	private Vector2 projectileVelocity;
 
-	private Animation<TextureRegion> animation;
+	private Animation<TextureRegion> moveAnimation;
+	private Animation<TextureRegion> explosionAnimation;
 
 	private Vector2 nextProjectilePosition;
 	private Vector2 currentProjectilePosition;
@@ -35,9 +37,15 @@ public class Projectile {
 	private Vector2 fireDirection;
 	private Vector2 finishPosition;
 	private final Entity caster;
+	
+	private boolean zeroTime=true;
 
 	public Entity getCaster() {
 		return caster;
+	}
+	
+	public float getRotationAngle() {
+		return fireDirection.angle();
 	}
 
 	public Projectile setProjectileSpritePath(String projectileSpritePath) {
@@ -46,7 +54,14 @@ public class Projectile {
 			Utility.loadAssetOfGivenType(this.projectileSpritePath, Texture.class);
 		return this;
 	}
-
+	
+	public Projectile setExplosionSpritePath(String explosionSpritePath) {
+		this.explosionSpritePath = explosionSpritePath;
+		if(!Utility.isAssetLoaded(this.explosionSpritePath))
+			Utility.loadAssetOfGivenType(this.explosionSpritePath, Texture.class);
+		return this;
+	}
+	
 	public Projectile setStartPosition(Vector2 startPosition) {
 		currentProjectilePosition = new Vector2(startPosition);
 		nextProjectilePosition = new Vector2(startPosition);
@@ -70,7 +85,8 @@ public class Projectile {
 	public Projectile build() {
 		fireDirection = new Vector2(finishPosition.sub(currentProjectilePosition).nor());
 		loadDefaultSprite();
-		loadAllAnimations(7);
+		moveAnimation=loadAnimation(projectileSpritePath,5);
+		explosionAnimation=loadAnimation(explosionSpritePath, 7);
 		initHitBoxSize(0.5f, 0.5f);
 		return this;
 	}
@@ -99,20 +115,20 @@ public class Projectile {
 			minX = nextProjectilePosition.x / MapManager.UNIT_SCALE;
 			minY = nextProjectilePosition.y / MapManager.UNIT_SCALE;
 		}
-		projectileHitBox.setPosition(minX, minY);
+		projectileHitBox.setPosition(minX+projectileHitBox.width/2, minY+projectileHitBox.height/2);
 	}
 
 	private void loadDefaultSprite() {
 		Texture texture = Utility.getAssetOfGivenType(projectileSpritePath, Texture.class);
 		TextureRegion[][] textureFrames = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
 		projectileSprite = new Sprite(textureFrames[0][0].getTexture(), 0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+		projectileSprite.setRotation(fireDirection.angle());
 		projectileTextureRegion = textureFrames[0][0];
 	}
 
-	private void loadAllAnimations(int numberOfFrames) {
-		Texture texture = Utility.getAssetOfGivenType(projectileSpritePath, Texture.class);
+	private Animation<TextureRegion> loadAnimation(String spritePath, int numberOfFrames) {
+		Texture texture = Utility.getAssetOfGivenType(spritePath, Texture.class);
 		TextureRegion[][] textureFrames = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
-
 		Array<TextureRegion> frames = new Array<>(numberOfFrames);
 
 		for(int i = 0;i < numberOfFrames;i++) {
@@ -121,8 +137,7 @@ public class Projectile {
 				Gdx.app.debug(TAG, "Got null animation frame " + 0 + "," + i);
 			frames.add(region);
 		}
-
-		animation = new Animation<>(0.5f, frames, Animation.PlayMode.NORMAL);
+		return new Animation<>(0.1f, frames, Animation.PlayMode.NORMAL);
 	}
 
 	private void initHitBoxSize(float percentageWidthReduced, float percentageHeightReduced) {
@@ -139,7 +154,7 @@ public class Projectile {
 			minX = nextProjectilePosition.x / MapManager.UNIT_SCALE;
 			minY = nextProjectilePosition.y / MapManager.UNIT_SCALE;
 		}
-		projectileHitBox.set(minX, minY, width, height);
+		projectileHitBox.set(minX+width/2, minY+height/2, width, height);
 	}
 
 	public void calculateNextPosition(float deltaTime) {
@@ -156,16 +171,23 @@ public class Projectile {
 		currentProjectilePosition.set(currentPositionX, currentPositionY);
 	}
 
-	public void onNoCollision() {
+	public void onNoCollision(float deltaTime) {
 		setCurrentPosition(nextProjectilePosition.x, nextProjectilePosition.y);
-	}
-
-	public void updateAfterCollisionTest(float deltaTime) {
 		calculateNextPosition(deltaTime);
-		projectileTextureRegion = animation.getKeyFrame(frameTime);
+		projectileTextureRegion = moveAnimation.getKeyFrame(frameTime);
 	}
 
-	public void onCollision() {
+//	public void updateAfterCollisionTest(float deltaTime) {
+//		calculateNextPosition(deltaTime);
+//		projectileTextureRegion = moveAnimation.getKeyFrame(frameTime);
+//	}
 
+	public boolean onCollision() {
+		if(zeroTime) {
+			frameTime=0f;
+			zeroTime=false;
+		}
+		projectileTextureRegion=explosionAnimation.getKeyFrame(frameTime);
+		return explosionAnimation.isAnimationFinished(frameTime);
 	}
 }

@@ -166,7 +166,7 @@ public class Entity {
 			minX = nextEntityPosition.x / MapManager.UNIT_SCALE;
 			minY = nextEntityPosition.y / MapManager.UNIT_SCALE;
 		}
-		entityHitBox.set(minX, minY, width, height);
+		entityHitBox.set(minX+width/2, minY, width, height);
 	}
 
 	private void updateHitBoxPosition() {
@@ -176,7 +176,7 @@ public class Entity {
 			minX = nextEntityPosition.x / MapManager.UNIT_SCALE;
 			minY = nextEntityPosition.y / MapManager.UNIT_SCALE;
 		}
-		entityHitBox.setPosition(minX, minY);
+		entityHitBox.setPosition(minX+entityHitBox.width/2, minY);
 	}
 
 	private String getSpritePath() {
