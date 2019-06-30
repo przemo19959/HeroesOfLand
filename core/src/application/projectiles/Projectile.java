@@ -64,12 +64,13 @@ public class Projectile {
 	
 	public Projectile setStartPosition(Vector2 startPosition) {
 		currentProjectilePosition = new Vector2(startPosition);
-		nextProjectilePosition = new Vector2(startPosition);
+		nextProjectilePosition = new Vector2(currentProjectilePosition);
 		return this;
 	}
 
 	public Projectile setEndPosition(Vector2 endPosition) {
-		finishPosition = new Vector2(endPosition);
+		//Dziêki odjêciu, œrodek pocisku trafia centralnie w kursor myszy
+		finishPosition = new Vector2(endPosition.sub(8*MapManager.UNIT_SCALE, 8*MapManager.UNIT_SCALE));
 		return this;
 	}
 
@@ -122,7 +123,6 @@ public class Projectile {
 		Texture texture = Utility.getAssetOfGivenType(projectileSpritePath, Texture.class);
 		TextureRegion[][] textureFrames = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
 		projectileSprite = new Sprite(textureFrames[0][0].getTexture(), 0, 0, FRAME_WIDTH, FRAME_HEIGHT);
-		projectileSprite.setRotation(fireDirection.angle());
 		projectileTextureRegion = textureFrames[0][0];
 	}
 
