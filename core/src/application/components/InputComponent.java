@@ -1,10 +1,7 @@
 package application.components;
 
 import com.badlogic.gdx.InputProcessor;
-
-import application.entity.Entity;
-import application.entity.Entity.Direction;
-import application.entity.Entity.State;
+import application.characters.Character;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +11,7 @@ import java.util.Map;
  * wskazuj¹cych na to czy dany przycisk zosta³ wciœniêty.
  */
 public abstract class InputComponent implements InputProcessor {
-	protected Entity entity;
+	protected Character entity;
 	
 	/**
 	 * Enum przechowuj¹ce listê aktywnych (obs³ugiwanych w grze) przycisków
@@ -63,13 +60,13 @@ public abstract class InputComponent implements InputProcessor {
 	 */
 	public abstract void update(float delta);
 	
-	public void setEntity(Entity entity) {
+	public void setEntity(Character entity) {
 		this.entity=entity;
 	}
 
-	protected void moveEntity(float delta, Direction direction, State state) {
-		entity.calculateNextPosition(delta);
-		entity.setState(state);
-		entity.setDirection(direction);
-	}
+//	protected void moveEntity(float delta, Direction direction) {
+//		entity.calculateNextPosition(delta);
+////		entity.setState(state);
+//		entity.setDirection(direction);
+//	}
 }

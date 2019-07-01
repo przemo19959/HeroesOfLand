@@ -14,11 +14,13 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
 import application.entity.Entity;
-import application.entity.EntityFactory;
+import application.entity.EntityManager;
 import application.maps.MapManager;
 import application.maps.MapManager.MapLayerName;
 import application.projectiles.Projectile;
 import application.projectiles.ProjectileManager;
+import application.characters.Character;
+import application.characters.CharacterManager;
 
 public class MainGameScreen implements Screen {
 	private static final String TAG = MainGameScreen.class.getSimpleName();
@@ -36,19 +38,20 @@ public class MainGameScreen implements Screen {
 	private Sprite currentPlayerSprite;
 	private OrthogonalTiledMapRenderer mapRenderer = null;
 	public static OrthographicCamera camera = null;
-//	private ShapeRenderer shapeRenderer;
+	private ShapeRenderer shapeRenderer;
 	
-	
-	private EntityFactory entityFactory;
 	private MapManager mapManager; 
+	private EntityManager entityManager;
+	private CharacterManager characterManager;
 	private ProjectileManager projectileManager;
 	
-	public static Entity player;
+	public static Character player;
 
 	public MainGameScreen() {
 		mapManager=new MapManager();
-		entityFactory=new EntityFactory(mapManager);
-		projectileManager=new ProjectileManager();
+		entityManager=new EntityManager();
+		characterManager=new CharacterManager(mapManager.getEnemySpawnLocationMap(), entityManager);
+		projectileManager=new ProjectileManager(entityManager);
 	}
 
 	@Override
@@ -61,11 +64,11 @@ public class MainGameScreen implements Screen {
 		mapRenderer = new OrthogonalTiledMapRenderer(mapManager.getCurrentMap(), MapManager.UNIT_SCALE);
 		mapRenderer.setView(camera);
 
-		player = entityFactory.createEntity(MapManager.PLAYER, mapManager.getPlayerStart());
-		entityFactory.initAllEntities();
+		player = CharacterManager.createCharacter(MapManager.PLAYER, mapManager.getPlayerStart());
+		characterManager.initAllCharacters();
 		
-		currentPlayerSprite = player.getFrameSprite();
-//		shapeRenderer=new ShapeRenderer();
+		currentPlayerSprite = player.getEntitySprite();
+		shapeRenderer=new ShapeRenderer();
 	}
 
 	@Override
@@ -79,36 +82,29 @@ public class MainGameScreen implements Screen {
 		camera.position.set(currentPlayerSprite.getX(), currentPlayerSprite.getY(), 0f);
 		camera.update();		
 		// -----------------blok UPDATE-------------------//
-		entityFactory.updateAllEntites(delta); //tutaj zmieniane jest po³o¿enie hitboxa
-		projectileManager.updateProjectiles(delta);
+		entityManager.updateAllEntites(delta);
+		
 //		updatePortalLayerActivation(player.boundingBox);
 		
-		for(Entity entity:entityFactory.getEntities()) {
-			if (!isCollisionWithMapLayer(entity.entityHitBox) && !isCollisionBetweenEntities(player, entity)
-					&& !isCollisionPlayerWithEntities(entity)) { //tutaj sprawdzana jest kolizja hitboxa z map¹
-				entity.setNextPositionToCurrent();
+		for(Entity entity:entityManager.getEntities()) {
+			if (entity.isEntity(Character.class) && !isCollisionWithMapLayer(entity.getEntityHitBox()) && !isCollisionBetweenEntities(player, entity)
+					&& !isCollisionPlayerWithCharacters(entity)) { //tutaj sprawdzana jest kolizja hitboxa z map¹
+				entity.onNoCollision(delta);
+			}else if(entity.isEntity(Projectile.class)) {
+				if(!isCollisionWithMapLayer(entity.getEntityHitBox()) && 
+						!isCollisionBetweenProjectileAndCharacters((Projectile)entity)){
+						entity.onNoCollision(delta);
+				}else {
+					if(entity.onCollision())
+						projectileManager.removeProjectile((Projectile)entity);
+					//tutaj, gdy nast¹pi³a kolizja pocisku i encji lub mapy
+				}
 			}
 		}
+				
+		for(Character character:characterManager.getCharacters())
+			character.updateInputComponent(delta);
 		
-		for(Projectile projectile:projectileManager.getProjectiles()) {
-			if(!isCollisionWithMapLayer(projectile.getProjectileHitBox()) && 
-					!isCollisionBetweenProjectileAndEntities(projectile)){
-					projectile.onNoCollision(delta);
-//					projectile.updateAfterCollisionTest(delta);
-			}else {
-				if(projectile.onCollision())
-					projectileManager.removeProjectile(projectile);
-				//tutaj, gdy nast¹pi³a kolizja pocisku i encji lub mapy
-			}
-		}
-		
-		for(Entity entity:entityFactory.getEntities())
-			entity.updateInputComponent(delta);
-		
-//		for(Projectile projectile:projectileManager.getProjectiles()) {
-//			projectile.updateAfterCollisionTest(delta);
-//		}
-
 		// -----------------blok UPDATE koniec-------------------//
 		mapRenderer.setView(camera);
 //		shapeRenderer.setProjectionMatrix(camera.combined);
@@ -116,15 +112,22 @@ public class MainGameScreen implements Screen {
 		mapRenderer.getBatch().begin();
 //		shapeRenderer.begin(ShapeType.Line);
 //		shapeRenderer.setColor(Color.GREEN);
-		entityFactory.getEntities().stream().sorted(Entity.yComparator.reversed()).forEach(entity->{
-			mapRenderer.getBatch().draw(entity.getFrame(), entity.getFrameSprite().getX(), entity.getFrameSprite().getY(), 1, 1);
-			//To rysuje obwód hitboxa encji
-//			shapeRenderer.rect(entity.entityHitBox.x*MapManager.UNIT_SCALE, entity.entityHitBox.y*MapManager.UNIT_SCALE
-//			                   , entity.entityHitBox.width*MapManager.UNIT_SCALE, entity.entityHitBox.height*MapManager.UNIT_SCALE);
+		characterManager.getCharacters().sort(Character.yComparator.reversed());
+		characterManager.getCharacters().forEach(character->{
+			mapRenderer.getBatch().draw(character.getEntityTextureRegion(), character.getEntitySprite().getX(), character.getEntitySprite().getY(), 1, 1);
+//			shapeRenderer.rect(character.getEntityHitBox().x*MapManager.UNIT_SCALE, character.getEntityHitBox().y*MapManager.UNIT_SCALE
+//		                   , character.getEntityHitBox().width*MapManager.UNIT_SCALE, character.getEntityHitBox().height*MapManager.UNIT_SCALE);
 		});
+		
+//		characterManager.getCharacters().sort((Character.yComparator.reversed()).forEach(entity->{
+//			mapRenderer.getBatch().draw(entity.getEntityTextureRegion(), entity.getEntitySprite().getX(), entity.getEntitySprite().getY(), 1, 1);
+//			//To rysuje obwód hitboxa encji
+////			shapeRenderer.rect(entity.entityHitBox.x*MapManager.UNIT_SCALE, entity.entityHitBox.y*MapManager.UNIT_SCALE
+////			                   , entity.entityHitBox.width*MapManager.UNIT_SCALE, entity.entityHitBox.height*MapManager.UNIT_SCALE);
+//		});
 		projectileManager.getProjectiles().forEach(projectile->{
-			mapRenderer.getBatch().draw(projectile.getProjectileTextureRegion(), projectile.getProjectileSprite().getX(), projectile.getProjectileSprite().getY(),
-			                            (projectile.getProjectileSprite().getWidth()*MapManager.UNIT_SCALE)/2, (projectile.getProjectileSprite().getHeight()*MapManager.UNIT_SCALE)/2,
+			mapRenderer.getBatch().draw(projectile.getEntityTextureRegion(), projectile.getEntitySprite().getX(), projectile.getEntitySprite().getY(),
+			                            (projectile.getEntitySprite().getWidth()*MapManager.UNIT_SCALE)/2, (projectile.getEntitySprite().getHeight()*MapManager.UNIT_SCALE)/2,
 			                            1, 1, 1, 1, projectile.getRotationAngle());
 //			shapeRenderer.rect(projectile.getProjectileHitBox().x*MapManager.UNIT_SCALE, projectile.getProjectileHitBox().y*MapManager.UNIT_SCALE
 //			                   , projectile.getProjectileHitBox().width*MapManager.UNIT_SCALE, projectile.getProjectileHitBox().height*MapManager.UNIT_SCALE);
@@ -150,7 +153,7 @@ public class MainGameScreen implements Screen {
 
 	@Override
 	public void dispose() {
-		for(Entity entity:entityFactory.getEntities())
+		for(Entity entity:entityManager.getEntities())
 			entity.dispose();
 		Gdx.input.setInputProcessor(null);
 		mapRenderer.dispose();
@@ -201,21 +204,21 @@ public class MainGameScreen implements Screen {
 	}
 	
 	private boolean isCollisionBetweenEntities(Entity entity1, Entity entity2) {
-		return (!entity1.equals(entity2) && entity1.entityHitBox.overlaps(entity2.entityHitBox))?true:false;
+		return (!entity1.equals(entity2) && entity1.getEntityHitBox().overlaps(entity2.getEntityHitBox()))?true:false;
 	}
 	
-	private boolean isCollisionBetweenProjectileAndEntities(Projectile projectile) {
-		for(Entity entity:entityFactory.getEntities()) {
-			if(!projectile.getCaster().equals(entity) && projectile.getProjectileHitBox().overlaps(entity.entityHitBox))
+	private boolean isCollisionBetweenProjectileAndCharacters(Projectile projectile) {
+		for(Character character:characterManager.getCharacters()) {
+			if(!projectile.getCaster().equals(character) && projectile.getEntityHitBox().overlaps(character.getEntityHitBox()))
 				return true;
 		}
 		return false;
 	}
 	
-	private boolean isCollisionPlayerWithEntities(Entity playerEntity) {
+	private boolean isCollisionPlayerWithCharacters(Entity playerEntity) {
 		if(playerEntity.equals(player)) {
-			for(Entity entity:entityFactory.getEntities()) {
-				if(isCollisionBetweenEntities(playerEntity, entity))
+			for(Character character:characterManager.getCharacters()) {
+				if(isCollisionBetweenEntities(playerEntity, character))
 					return true;
 			}
 		}

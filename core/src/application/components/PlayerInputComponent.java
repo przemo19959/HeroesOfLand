@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import application.entity.Entity.Direction;
 import application.game.MainGameScreen;
 import application.maps.MapManager;
 import application.projectiles.ProjectileManager;
@@ -135,7 +134,7 @@ public class PlayerInputComponent extends InputComponent {
 		if(mouseButtons.get(Mouse.SELECT)) {
 			mouseButtons.put(Mouse.SELECT, false);
 			move=true;
-			goalPosition=getScaledMouseXYCoordinates(false).sub((entity.entityHitBox.width*MapManager.UNIT_SCALE)/2, (entity.entityHitBox.height*MapManager.UNIT_SCALE)/2);
+			goalPosition=getScaledMouseXYCoordinates(false).sub((entity.getEntityHitBox().width*MapManager.UNIT_SCALE), (entity.getEntityHitBox().height*MapManager.UNIT_SCALE)/2);
 			System.out.println(goalPosition);
 		}
 		if(move) {
@@ -146,7 +145,7 @@ public class PlayerInputComponent extends InputComponent {
 		if(mouseButtons.get(Mouse.DOACTION)) {
 			mouseButtons.put(Mouse.DOACTION, false);
 //			System.out.println(entity.getFrameSprite().getX()+", "+entity.getFrameSprite().getY());
-			ProjectileManager.createProjectile(entity,ProjectileManager.FIRE_BALL,ProjectileManager.FIRE_EXPLOSION,MainGameScreen.player.getCurrentPosition(),
+			ProjectileManager.createProjectile(entity,ProjectileManager.FIRE_BALL,ProjectileManager.FIRE_EXPLOSION,MainGameScreen.player.getCurrentEntityPosition(),
 			                                   getScaledMouseXYCoordinates(false));
 		}
 	}
@@ -167,7 +166,7 @@ public class PlayerInputComponent extends InputComponent {
 //	}
 	
 	private void moveTowardPoint(float delta, Vector2 goalPosition) {
-		if(Vector2.dst(goalPosition.x, goalPosition.y, entity.getCurrentPosition().x, entity.getCurrentPosition().y)>0.05) {
+		if(Vector2.dst(goalPosition.x, goalPosition.y, entity.getCurrentEntityPosition().x, entity.getCurrentEntityPosition().y)>0.05) {
 			entity.calculateNextPositionToward(goalPosition.cpy(), delta);
 //			entity.setDirection(direction);
 		}else
