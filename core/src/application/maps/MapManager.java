@@ -28,7 +28,7 @@ public class MapManager {
 	private final static String BATTLE_FIELD = "BATTLE_FIELD";
 
 	public enum MapLayerName {
-		MAP_COLLISION_LAYER, MAP_SPAWNS_LAYER, MAP_PORTAL_LAYER
+		MAP_COLLISION_LAYER, MAP_SPAWNS_LAYER, MAP_PORTAL_LAYER, Background_Layer
 	}
 
 	// spawns names
@@ -85,17 +85,22 @@ public class MapManager {
 			return;
 		}
 		
-		collisionLayer=fun(MapLayerName.MAP_COLLISION_LAYER);
-		portalLayer=fun(MapLayerName.MAP_PORTAL_LAYER);		
+		collisionLayer=getMapLayerIfExists(MapLayerName.MAP_COLLISION_LAYER);
+		portalLayer=getMapLayerIfExists(MapLayerName.MAP_PORTAL_LAYER);		
 		spawnsLayer = currentMap.getLayers().get(MapLayerName.MAP_SPAWNS_LAYER.toString());
 		//@formatter:off
 		if (spawnsLayer == null) Gdx.app.debug(TAG, "No spawn layer!");
 		else getSpawnLocationsForEntities(); //@formatter:on
 
 		Gdx.app.debug(TAG, "Player Start: (" + playerStart.x + "," + playerStart.y + ")");
+		
+		//dodaj kafelki i po³¹czenia do grafu kafelków
+//		MapLayer backgroundLayer=getMapLayerIfExists(MapLayerName.Background_Layer);
+		
+		
 	}
 	
-	private MapLayer fun(MapLayerName layerName) { //formatter:off
+	private MapLayer getMapLayerIfExists(MapLayerName layerName) { //formatter:off
 		MapLayer layer = currentMap.getLayers().get(layerName.toString());
 		if (layer == null) Gdx.app.debug(TAG, "No collision layer!");
 		return layer; //formatter:on

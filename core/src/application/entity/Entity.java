@@ -279,16 +279,21 @@ public class Entity {
 	}
 	
 	public void calculateNextPositionToward(Vector2 endPosition, float deltaTime) {
-		float testX = currentEntityPosition.x;
-		float testY = currentEntityPosition.y;
+		Vector2 tmp = new Vector2(currentEntityPosition);
 		entityVelocity.scl(deltaTime);
 		
 		Vector2 direction=endPosition.sub(currentEntityPosition).nor();
-		testX+=direction.x*entityVelocity.x;
-		testY+=direction.y*entityVelocity.y;
+		changeDirectionFrame(direction.angle());
 		
-		nextEntityPosition.x = testX;
-		nextEntityPosition.y = testY;
+		tmp.add(direction.x * entityVelocity.x, direction.y * entityVelocity.y);
+		nextEntityPosition.set(tmp);
 		entityVelocity.scl(1 / deltaTime);
-	}	
+	}
+	
+	private void changeDirectionFrame(float directionAngle) { //@formatter:off
+		if((directionAngle>0 && directionAngle<45) || (directionAngle>315 && directionAngle<360)) setDirection(Direction.RIGHT);
+		else if(directionAngle>45 && directionAngle<135) setDirection(Direction.UP);
+		else if(directionAngle>135 && directionAngle<225) setDirection(Direction.LEFT);
+		else if(directionAngle>225 && directionAngle<315) setDirection(Direction.DOWN);
+	}//@formatter:on
 }

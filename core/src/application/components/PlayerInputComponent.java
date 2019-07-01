@@ -6,13 +6,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import application.entity.Entity.Direction;
-import application.entity.Entity.State;
 import application.game.MainGameScreen;
 import application.maps.MapManager;
 import application.projectiles.ProjectileManager;
 
 public class PlayerInputComponent extends InputComponent {
 	private Vector3 lastMouseCoordinates;
+	private boolean move;
+	private Vector2 goalPosition;
 
 	public PlayerInputComponent() {
 		this.lastMouseCoordinates = new Vector3();
@@ -126,13 +127,20 @@ public class PlayerInputComponent extends InputComponent {
 	
 	private void processInput(float delta){
 		if(keys.get(Keys.QUIT)) Gdx.app.exit();
-		changeDirectionFlagAndMoveEntity(delta, Keys.LEFT, Direction.LEFT);
-		changeDirectionFlagAndMoveEntity(delta, Keys.RIGHT, Direction.RIGHT);
-		changeDirectionFlagAndMoveEntity(delta, Keys.UP, Direction.UP);
-		changeDirectionFlagAndMoveEntity(delta, Keys.DOWN, Direction.DOWN);
+//		changeDirectionFlagAndMoveEntity(delta, Keys.LEFT, Direction.LEFT);
+//		changeDirectionFlagAndMoveEntity(delta, Keys.RIGHT, Direction.RIGHT);
+//		changeDirectionFlagAndMoveEntity(delta, Keys.UP, Direction.UP);
+//		changeDirectionFlagAndMoveEntity(delta, Keys.DOWN, Direction.DOWN);
 		
 		if(mouseButtons.get(Mouse.SELECT)) {
 			mouseButtons.put(Mouse.SELECT, false);
+			move=true;
+			goalPosition=getScaledMouseXYCoordinates(false).sub((entity.entityHitBox.width*MapManager.UNIT_SCALE)/2, (entity.entityHitBox.height*MapManager.UNIT_SCALE)/2);
+			System.out.println(goalPosition);
+		}
+		if(move) {
+			System.out.println("move");
+			moveTowardPoint(delta, goalPosition);
 		}
 		
 		if(mouseButtons.get(Mouse.DOACTION)) {
@@ -150,11 +158,19 @@ public class PlayerInputComponent extends InputComponent {
 		return point;
 	}
 		
-	private void changeDirectionFlagAndMoveEntity(float delta, Keys key, Direction direction) {
-		if(keys.get(key)){
-			entity.setDirectionFlag(direction, true);
-			moveEntity(delta, direction, State.WALKING);
+//	private void changeDirectionFlagAndMoveEntity(float delta, Keys key, Direction direction) {
+//		if(keys.get(key)){
+//			entity.setDirectionFlag(direction, true);
+//			moveEntity(delta, direction, State.WALKING);
+//		}else
+//			entity.setDirectionFlag(direction, false);
+//	}
+	
+	private void moveTowardPoint(float delta, Vector2 goalPosition) {
+		if(Vector2.dst(goalPosition.x, goalPosition.y, entity.getCurrentPosition().x, entity.getCurrentPosition().y)>0.05) {
+			entity.calculateNextPositionToward(goalPosition.cpy(), delta);
+//			entity.setDirection(direction);
 		}else
-			entity.setDirectionFlag(direction, false);
+			move=false;
 	}
 }
