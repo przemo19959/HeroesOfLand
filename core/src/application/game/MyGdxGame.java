@@ -3,7 +3,7 @@ package application.game;
 import com.badlogic.gdx.Game;
 
 public class MyGdxGame extends Game {		
-	public static final MainGameScreen mainGameScreen=new MainGameScreen();
+	private static final MainGameScreen mainGameScreen=new MainGameScreen();
 	
 	@Override
 	public void create () {

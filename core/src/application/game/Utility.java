@@ -16,7 +16,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
  * Ta klasa odpowiada za ³adowanie, pobieranie i zwalnianie ró¿nego rodzajów zasobów.
  */
 public final class Utility {
-	public static final AssetManager assetManager = new AssetManager();
+	private static final AssetManager assetManager = new AssetManager();
 	private static final String TAG = Utility.class.getSimpleName();
 	private static InternalFileHandleResolver filePathResolver = new InternalFileHandleResolver();
 	
@@ -28,17 +28,20 @@ public final class Utility {
 		}
 	}
 
-	public static float loadCompleted() {
-		return assetManager.getProgress();
-	}
+// TODO Remove unused code found by UCDetector
+// 	public static float loadCompleted() {
+// 		return assetManager.getProgress();
+// 	}
 
-	public static int numberAssetsQueued() {
-		return assetManager.getQueuedAssets();
-	}
+// TODO Remove unused code found by UCDetector
+// 	public static int numberAssetsQueued() {
+// 		return assetManager.getQueuedAssets();
+// 	}
 
-	public static boolean updateAssetLoading() {
-		return assetManager.update();
-	}
+// TODO Remove unused code found by UCDetector
+// 	public static boolean updateAssetLoading() {
+// 		return assetManager.update();
+// 	}
 
 	public static boolean isAssetLoaded(String fileName) {
 		return assetManager.isLoaded(fileName);

@@ -23,7 +23,7 @@ public class Projectile extends Entity {
 	private boolean zeroTime=true;
 	private String explosionSpritePath;
 
-	public Projectile(Character caster, String entitySpritePath, Vector2 startPosition, Vector2 endPosition, String explosionSpritePath) {
+	Projectile(Character caster, String entitySpritePath, Vector2 startPosition, Vector2 endPosition, String explosionSpritePath) {
 		super(entitySpritePath, startPosition);
 		entityVelocity = new Vector2(4f, 4f);
 		
@@ -65,7 +65,7 @@ public class Projectile extends Entity {
 		return new Animation<>(0.1f, frames, Animation.PlayMode.NORMAL);
 	}
 
-	public void calculateNextPosition(float deltaTime) {
+	private void calculateNextPosition(float deltaTime) {
 		Vector2 tmp = new Vector2(currentEntityPosition);
 		entityVelocity.scl(deltaTime);
 		tmp.add(fireDirection.x * entityVelocity.x, fireDirection.y * entityVelocity.y);

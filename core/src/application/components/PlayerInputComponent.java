@@ -2,40 +2,38 @@ package application.components;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Queue;
 
 import application.game.MainGameScreen;
 import application.maps.MapManager;
+import application.pathfinder.Tile;
 import application.projectiles.ProjectileManager;
 
-public class PlayerInputComponent extends InputComponent {
-	private Vector3 lastMouseCoordinates;
+public class PlayerInputComponent extends InputComponent {	
+	private Vector3 leftButtonMouseLastPosition;
+	private Vector3 rightButtonMouseLastPosition;
+	
 	private boolean move;
-	private Vector2 goalPosition;
-
+	private GraphPath<Tile> tilePath;
+	private Queue<Vector2> entityPath;
+	
 	public PlayerInputComponent() {
-		this.lastMouseCoordinates = new Vector3();
+		leftButtonMouseLastPosition=new Vector3();
+		rightButtonMouseLastPosition=new Vector3();
+		entityPath=new Queue<>(40);
 	}
 
 	@Override
 	public boolean keyDown(int keycode) { //@formatter:off
-		if( keycode == Input.Keys.LEFT || keycode == Input.Keys.A) setKeyState(Keys.LEFT, true);
-		if( keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) setKeyState(Keys.RIGHT, true);
-		if( keycode == Input.Keys.UP || keycode == Input.Keys.W) setKeyState(Keys.UP, true);
-		if( keycode == Input.Keys.DOWN || keycode == Input.Keys.S) setKeyState(Keys.DOWN, true);
-		if (keycode==Input.Keys.P) setKeyState(Keys.FIRE, true);
 		if( keycode == Input.Keys.Q) setKeyState(Keys.QUIT, true);
 		return true; //@formatter:on
 	}
 
 	@Override
 	public boolean keyUp(int keycode) { //@formatter:off
-		if( keycode == Input.Keys.LEFT || keycode == Input.Keys.A) setKeyState(Keys.LEFT, false);
-		if( keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) setKeyState(Keys.RIGHT, false);
-		if( keycode == Input.Keys.UP || keycode == Input.Keys.W ) setKeyState(Keys.UP, false);
-		if( keycode == Input.Keys.DOWN || keycode == Input.Keys.S) setKeyState(Keys.DOWN, false);
-		if (keycode==Input.Keys.P) setKeyState(Keys.FIRE, false);
 		if( keycode == Input.Keys.Q) setKeyState(Keys.QUIT, false);
 		return true; //@formatter:on
 	}
@@ -47,9 +45,9 @@ public class PlayerInputComponent extends InputComponent {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) { //@formatter:off
-		if( button == Input.Buttons.LEFT || button == Input.Buttons.RIGHT ) setClickedMouseCoordinates(screenX, screenY);
-		if( button == Input.Buttons.LEFT) selectMouseButtonPressed();
-		if( button == Input.Buttons.RIGHT) doActionMouseButtonPressed();
+//		if( button == Input.Buttons.LEFT || button == Input.Buttons.RIGHT ) setClickedMouseCoordinates(screenX, screenY);
+		if( button == Input.Buttons.LEFT) selectMouseButtonPressed(screenX,screenY);
+		if( button == Input.Buttons.RIGHT) doActionMouseButtonPressed(screenX,screenY);
 		return true; //@formatter:on
 	}
 
@@ -67,6 +65,12 @@ public class PlayerInputComponent extends InputComponent {
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
+//		lastMouseCoordinates.set(screenX, screenY, 0);
+//		MainGameScreen.camera.unproject(lastMouseCoordinates);
+//		goalPosition=getScaledMouseXYCoordinates(false);
+//		MapManager.calculatePath(MainGameScreen.player.getCurrentEntityPosition().add(0.5f, 0.5f), goalPosition);
+//		return true;
+		
 		return false;
 	}
 
@@ -74,33 +78,28 @@ public class PlayerInputComponent extends InputComponent {
 	public boolean scrolled(int amount) {
 		return false;
 	}
-
-	public void dispose(){
-		
-	}
 	
 	private void setKeyState(Keys key, boolean pressed) {
 		keys.put(key, pressed);
 	}
-		
-	public void setClickedMouseCoordinates(int x,int y){
-		lastMouseCoordinates.set(x, y, 0);
-		MainGameScreen.camera.unproject(lastMouseCoordinates);
-	}
-	
-	public void selectMouseButtonPressed(){
+			
+	private void selectMouseButtonPressed(int x, int y){
 		mouseButtons.put(Mouse.SELECT, true);
+		leftButtonMouseLastPosition.set(x, y,0);
+		MainGameScreen.camera.unproject(leftButtonMouseLastPosition);
 	}
 	
-	public void doActionMouseButtonPressed(){
+	private void doActionMouseButtonPressed(int x, int y){
 		mouseButtons.put(Mouse.DOACTION, true);
+		rightButtonMouseLastPosition.set(x, y,0);
+		MainGameScreen.camera.unproject(rightButtonMouseLastPosition);
 	}
 	
-	public void selectMouseButtonReleased(){
+	private void selectMouseButtonReleased(){
 		mouseButtons.put(Mouse.SELECT, false);
 	}
 	
-	public void doActionMouseButtonReleased(){
+	private void doActionMouseButtonReleased(){
 		mouseButtons.put(Mouse.DOACTION, false);
 	}
 	
@@ -112,64 +111,47 @@ public class PlayerInputComponent extends InputComponent {
 	 */
 	@Override
 	public void update(float delta) {
-		processInput(delta);
+		processInput();
+		if(move) { //@formatter:off
+			if(entityPath.size>0) moveTowardPoint(delta, entityPath.first());
+			else move=false;
+		} //@formatter:on
 	}
 	
-	
-	public static void hide(){
-		keys.put(Keys.LEFT, false);
-		keys.put(Keys.RIGHT, false);
-		keys.put(Keys.UP, false);
-		keys.put(Keys.DOWN, false);
-		keys.put(Keys.QUIT, false);
-	}
-	
-	private void processInput(float delta){
-		if(keys.get(Keys.QUIT)) Gdx.app.exit();
-//		changeDirectionFlagAndMoveEntity(delta, Keys.LEFT, Direction.LEFT);
-//		changeDirectionFlagAndMoveEntity(delta, Keys.RIGHT, Direction.RIGHT);
-//		changeDirectionFlagAndMoveEntity(delta, Keys.UP, Direction.UP);
-//		changeDirectionFlagAndMoveEntity(delta, Keys.DOWN, Direction.DOWN);
-		
+	private void processInput(){
+		if(keys.get(Keys.QUIT)) Gdx.app.exit();		
 		if(mouseButtons.get(Mouse.SELECT)) {
 			mouseButtons.put(Mouse.SELECT, false);
-			move=true;
-			goalPosition=getScaledMouseXYCoordinates(false).sub((entity.getEntityHitBox().width*MapManager.UNIT_SCALE), (entity.getEntityHitBox().height*MapManager.UNIT_SCALE)/2);
-			System.out.println(goalPosition);
+			tilePath=MapManager.calculatePath(entity.getCurrentEntityPosition(),getScaledMouseXYCoordinates(leftButtonMouseLastPosition, false));
+			addTilesCentersToQueue();
 		}
-		if(move) {
-			System.out.println("move");
-			moveTowardPoint(delta, goalPosition);
-		}
-		
 		if(mouseButtons.get(Mouse.DOACTION)) {
 			mouseButtons.put(Mouse.DOACTION, false);
-//			System.out.println(entity.getFrameSprite().getX()+", "+entity.getFrameSprite().getY());
-			ProjectileManager.createProjectile(entity,ProjectileManager.FIRE_BALL,ProjectileManager.FIRE_EXPLOSION,MainGameScreen.player.getCurrentEntityPosition(),
-			                                   getScaledMouseXYCoordinates(false));
+			ProjectileManager.createProjectile(entity,ProjectileManager.FIRE_BALL,ProjectileManager.FIRE_EXPLOSION,entity.getCurrentEntityPosition().cpy().sub(0.5f, 0.5f),
+			                                   getScaledMouseXYCoordinates(rightButtonMouseLastPosition, false));
 		}
 	}
 	
-	private Vector2 getScaledMouseXYCoordinates(boolean scaled) {
+	private void addTilesCentersToQueue() {
+		if(tilePath!=null) {
+			move=true;
+			entityPath.clear();
+			for(Tile tile:tilePath)
+				entityPath.addLast(tile.getCenter());
+		}
+	}
+	
+	private Vector2 getScaledMouseXYCoordinates(Vector3 mouseButtonLastPosition, boolean scaled) {
 		Vector2 point=new Vector2();
-		point.x=(scaled)?lastMouseCoordinates.x*MapManager.UNIT_SCALE:lastMouseCoordinates.x;
-		point.y=(scaled)?lastMouseCoordinates.y*MapManager.UNIT_SCALE:lastMouseCoordinates.y;
+		point.x=(scaled)?mouseButtonLastPosition.x*MapManager.UNIT_SCALE:mouseButtonLastPosition.x;
+		point.y=(scaled)?mouseButtonLastPosition.y*MapManager.UNIT_SCALE:mouseButtonLastPosition.y;
 		return point;
 	}
-		
-//	private void changeDirectionFlagAndMoveEntity(float delta, Keys key, Direction direction) {
-//		if(keys.get(key)){
-//			entity.setDirectionFlag(direction, true);
-//			moveEntity(delta, direction, State.WALKING);
-//		}else
-//			entity.setDirectionFlag(direction, false);
-//	}
-	
+			
 	private void moveTowardPoint(float delta, Vector2 goalPosition) {
 		if(Vector2.dst(goalPosition.x, goalPosition.y, entity.getCurrentEntityPosition().x, entity.getCurrentEntityPosition().y)>0.05) {
 			entity.calculateNextPositionToward(goalPosition.cpy(), delta);
-//			entity.setDirection(direction);
 		}else
-			move=false;
+			entityPath.removeFirst();
 	}
 }

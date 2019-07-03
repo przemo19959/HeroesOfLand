@@ -18,10 +18,10 @@ public abstract class Entity {
 	protected Vector2 nextEntityPosition;
 	protected Vector2 currentEntityPosition;
 	protected float frameTime = 0f;
-	protected Sprite entitySprite;
+	private Sprite entitySprite;
 	protected TextureRegion entityTextureRegion;
-	protected static final int FRAME_WIDTH = 16;
-	protected static final int FRAME_HEIGHT = 16;
+	public static final int FRAME_WIDTH = 16;
+	public static final int FRAME_HEIGHT = 16;
 	protected Rectangle entityHitBox;
 	
 	public Entity(String entitySpritePath, Vector2 startPosition) {
@@ -88,7 +88,7 @@ public abstract class Entity {
 		currentEntityPosition.set(currentPosition);
 	}
 	
-	protected void loadDefaultSprite() {
+	private void loadDefaultSprite() {
 		Texture texture = Utility.getAssetOfGivenType(entitySpritePath, Texture.class);
 		TextureRegion[][] textureFrames = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
 		entitySprite = new Sprite(textureFrames[0][0].getTexture(), 0, 0, FRAME_WIDTH, FRAME_HEIGHT);

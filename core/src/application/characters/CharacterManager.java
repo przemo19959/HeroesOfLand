@@ -32,10 +32,11 @@ public class CharacterManager {
 		CharacterManager.entityManager=entityManager;
 	}
 
-	public void removeCharacter(Character character) {
-		boolean result=characters.removeValue(character, true);
-		System.out.println(result);
-	}
+// TODO Remove unused code found by UCDetector
+// 	public void removeCharacter(Character character) {
+// 		boolean result=characters.removeValue(character, true);
+// 		System.out.println(result);
+// 	}
 
 	public Array<Character> getCharacters() {
 		return characters;

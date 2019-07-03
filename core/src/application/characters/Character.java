@@ -6,7 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -32,42 +31,27 @@ public class Character extends Entity {
 	private InputComponent inputComponent;
 	public final static Comparator<Character> yComparator = ((entity1, entity2) -> Float
 			.compare(entity1.currentEntityPosition.y, entity2.currentEntityPosition.y));
-	private boolean up,right,down,left;
-
+//	private boolean up,right,down,left;
+	private Vector2 moveDirection;
+		
 	public Vector2 getNextPlayerPosition() {
 		return nextEntityPosition;
 	}
 	
 	public enum State {
 		IDLE, WALKING;
-
-		public static State getRandomState() {
-			return State.values()[MathUtils.random(State.values().length - 1)];
-		}
 	}
 
 	public enum Direction {
 		UP, RIGHT, DOWN, LEFT;
 
-		public static Direction getRandomDirection() {
-			return Direction.values()[MathUtils.random(Direction.values().length - 1)];
-		}
+// TODO Remove unused code found by UCDetector
+// 		public static Direction getRandomDirection() {
+// 			return Direction.values()[MathUtils.random(Direction.values().length - 1)];
+// 		}
 	}
 	
-	public void setDirectionFlag(Direction direction, boolean value) {
-		switch(direction) {//@formatter:off
-			case UP: up=value;break;
-			case RIGHT: right=value;break;
-			case DOWN: down=value;break;
-			case LEFT: left=value;break;
-		}//@formatter:on
-	}
-	
-	public void clearAllDirectionFlags() {
-		up=down=right=left=false;
-	}
-
-	public Character(String entitySpritePath, Vector2 startPosition, InputComponent inputComponent) {
+	Character(String entitySpritePath, Vector2 startPosition, InputComponent inputComponent) {
 		super(entitySpritePath, startPosition);
 		entityVelocity = new Vector2(2f, 2f);
 		loadAllAnimations();
@@ -77,6 +61,7 @@ public class Character extends Entity {
 		this.inputComponent.setEntity(this);
 		if (inputComponent instanceof PlayerInputComponent)
 			Gdx.input.setInputProcessor(inputComponent);
+		moveDirection=new Vector2();
 	}
 	
 	/**
@@ -92,7 +77,7 @@ public class Character extends Entity {
 		updateHitBoxPosition(entityHitBox.width/2,0f);
 	}
 
-	public void init(Vector2 position, boolean scaled) {
+	void init(Vector2 position, boolean scaled) {
 		currentEntityPosition.x = (scaled) ? position.x * MapManager.UNIT_SCALE : position.x;
 		currentEntityPosition.y = (scaled) ? position.y * MapManager.UNIT_SCALE : position.y;
 		nextEntityPosition.set(currentEntityPosition);
@@ -151,29 +136,30 @@ public class Character extends Entity {
 		if (inputComponent != null)
 			inputComponent.update(delta);
 	}
-	
-	public void calculateNextPosition(float deltaTime) {
-		Vector2 tmp=new Vector2(currentEntityPosition);
-		entityVelocity.scl(deltaTime);
-		//@formatter:off
-		if (left) tmp.x -= entityVelocity.x;
-		if (right) tmp.x += entityVelocity.x;
-		if (up) tmp.y += entityVelocity.y;
-		if (down) tmp.y -= entityVelocity.y; //@formatter:on
-		nextEntityPosition.set(tmp);
-		entityVelocity.scl(1 / deltaTime);
-	}
+		
+// TODO Remove unused code found by UCDetector
+// 	public void calculateNextPosition(float deltaTime) {
+// 		Vector2 tmp=new Vector2(currentEntityPosition);
+// 		entityVelocity.scl(deltaTime);
+// 		//@formatter:off
+// 		if (left) tmp.x -= entityVelocity.x;
+// 		if (right) tmp.x += entityVelocity.x;
+// 		if (up) tmp.y += entityVelocity.y;
+// 		if (down) tmp.y -= entityVelocity.y; //@formatter:on
+// 		nextEntityPosition.set(tmp);
+// 		entityVelocity.scl(1 / deltaTime);
+// 	}
 	
 	public void calculateNextPositionToward(Vector2 endPosition, float deltaTime) {
 		Vector2 tmp = new Vector2(currentEntityPosition);
 		entityVelocity.scl(deltaTime);
-		Vector2 direction=endPosition.sub(currentEntityPosition).nor();
-		changeDirectionFrame(direction.angle());
-		tmp.add(direction.x * entityVelocity.x, direction.y * entityVelocity.y);
+		moveDirection.set(endPosition.sub(currentEntityPosition).nor());
+		changeDirectionFrame(moveDirection.angle());
+		tmp.add(moveDirection.x * entityVelocity.x, moveDirection.y * entityVelocity.y);
 		nextEntityPosition.set(tmp);
 		entityVelocity.scl(1 / deltaTime);
 	}
-	
+		
 	private void changeDirectionFrame(float directionAngle) { //@formatter:off
 		if((directionAngle>0 && directionAngle<45) || (directionAngle>315 && directionAngle<360)) setDirection(Direction.RIGHT);
 		else if(directionAngle>45 && directionAngle<135) setDirection(Direction.UP);
