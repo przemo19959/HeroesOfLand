@@ -28,7 +28,7 @@ public abstract class Entity {
 		this.entitySpritePath = entitySpritePath;
 		Utility.loadAssetOfGivenType(entitySpritePath, Texture.class);
 		
-		currentEntityPosition = new Vector2(startPosition);
+		currentEntityPosition = new Vector2(startPosition).add(0.5f, 0.5f);
 		nextEntityPosition = new Vector2(currentEntityPosition);
 		
 		entityHitBox = new Rectangle();
@@ -57,10 +57,11 @@ public abstract class Entity {
 		float minX;
 		float minY;
 		if (MapManager.UNIT_SCALE > 0) {
-			minX = nextEntityPosition.x / MapManager.UNIT_SCALE;
-			minY = nextEntityPosition.y / MapManager.UNIT_SCALE;
+			minX = (nextEntityPosition.x+xOffset) / MapManager.UNIT_SCALE;
+			minY = (nextEntityPosition.y+yOffset) / MapManager.UNIT_SCALE;
 		}
-		entityHitBox.setPosition(minX+xOffset, minY+yOffset);
+//		entityHitBox.setPosition(minX, minY);
+		entityHitBox.setCenter(minX, minY);
 	}
 	
 	protected void initHitBoxSize(float percentageWidthReduced, float percentageHeightReduced,
@@ -72,14 +73,9 @@ public abstract class Entity {
 		float height = (heightReductionAmount > 0 && heightReductionAmount < 1) ? FRAME_HEIGHT * heightReductionAmount: FRAME_HEIGHT; //@formatter:on
 		if(width == 0 || height == 0)
 			Gdx.app.debug(TAG, "Width and Height are 0!! " + width + ":" + height);
-		float minX;
-		float minY;
-		if(MapManager.UNIT_SCALE > 0) {
-			minX = nextEntityPosition.x / MapManager.UNIT_SCALE;
-			minY = nextEntityPosition.y / MapManager.UNIT_SCALE;
-		}
-		
-		entityHitBox.set(minX+width*xOffset, minY+height*yOffset, width, height);
+		updateHitBoxPosition(xOffset, yOffset);
+		entityHitBox.setWidth(width);
+		entityHitBox.setHeight(height);
 	}
 	
 	protected void setCurrentPosition(Vector2 currentPosition) {

@@ -114,9 +114,10 @@ public class MainGameScreen implements Screen {
 		shapeRenderer.setColor(Color.GREEN);
 		characterManager.getCharacters().sort(Character.yComparator.reversed());
 		characterManager.getCharacters().forEach(character -> {
-			mapRenderer.getBatch().draw(character.getEntityTextureRegion(), character.getEntitySprite().getX()-0.5f, character.getEntitySprite().getY()-0.5f, 1, 1);
-//			 shapeRenderer.rect(character.getEntityHitBox().x*MapManager.UNIT_SCALE, character.getEntityHitBox().y*MapManager.UNIT_SCALE
-//			 , character.getEntityHitBox().width*MapManager.UNIT_SCALE, character.getEntityHitBox().height*MapManager.UNIT_SCALE);
+//			mapRenderer.getBatch().draw(character.getEntityTextureRegion(), character.getEntitySprite().getX()-0.5f, character.getEntitySprite().getY()-0.5f, 1, 1);
+			mapRenderer.getBatch().draw(character.getEntityTextureRegion(), character.getCurrentEntityPosition().x-0.5f, character.getCurrentEntityPosition().y-0.5f, 1, 1);
+			 shapeRenderer.rect(character.getEntityHitBox().x*MapManager.UNIT_SCALE, character.getEntityHitBox().y*MapManager.UNIT_SCALE
+			 , character.getEntityHitBox().width*MapManager.UNIT_SCALE, character.getEntityHitBox().height*MapManager.UNIT_SCALE);
 //			 shapeRenderer.rect(character.getEntitySprite().getX(), character.getEntitySprite().getY(), character.getEntitySprite().getWidth(), character.getEntitySprite().getHeight());
 		});
 
@@ -127,11 +128,14 @@ public class MainGameScreen implements Screen {
 		//// , entity.entityHitBox.width*MapManager.UNIT_SCALE, entity.entityHitBox.height*MapManager.UNIT_SCALE);
 		// });
 		projectileManager.getProjectiles().forEach(projectile -> {
-			mapRenderer.getBatch().draw(projectile.getEntityTextureRegion(), projectile.getEntitySprite().getX(), projectile.getEntitySprite().getY(),
+//			mapRenderer.getBatch().draw(projectile.getEntityTextureRegion(), projectile.getEntitySprite().getX(), projectile.getEntitySprite().getY(),
+//										(projectile.getEntitySprite().getWidth() * MapManager.UNIT_SCALE) / 2, (projectile.getEntitySprite().getHeight() * MapManager.UNIT_SCALE) / 2, 1, 1, 1, 1,
+//										projectile.getRotationAngle());
+			mapRenderer.getBatch().draw(projectile.getEntityTextureRegion(), projectile.getCurrentEntityPosition().x-1, projectile.getCurrentEntityPosition().y-1,
 										(projectile.getEntitySprite().getWidth() * MapManager.UNIT_SCALE) / 2, (projectile.getEntitySprite().getHeight() * MapManager.UNIT_SCALE) / 2, 1, 1, 1, 1,
 										projectile.getRotationAngle());
-			// shapeRenderer.rect(projectile.getProjectileHitBox().x*MapManager.UNIT_SCALE, projectile.getProjectileHitBox().y*MapManager.UNIT_SCALE
-			// , projectile.getProjectileHitBox().width*MapManager.UNIT_SCALE, projectile.getProjectileHitBox().height*MapManager.UNIT_SCALE);
+			 shapeRenderer.rect(projectile.getEntityHitBox().x*MapManager.UNIT_SCALE, projectile.getEntityHitBox().y*MapManager.UNIT_SCALE
+			 , projectile.getEntityHitBox().width*MapManager.UNIT_SCALE, projectile.getEntityHitBox().height*MapManager.UNIT_SCALE);
 			// shapeRenderer.rect(projectile.getProjectileSprite().getX(), projectile.getProjectileSprite().getY()
 			// , projectile.getProjectileSprite().getWidth()*MapManager.UNIT_SCALE, projectile.getProjectileSprite().getHeight()*MapManager.UNIT_SCALE);
 		});

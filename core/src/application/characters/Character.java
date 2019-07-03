@@ -55,7 +55,7 @@ public class Character extends Entity {
 		super(entitySpritePath, startPosition);
 		entityVelocity = new Vector2(2f, 2f);
 		loadAllAnimations();
-		initHitBoxSize(0.45f, 0.55f, 0.5f,0f);
+		initHitBoxSize(0.1f, 0.1f, 0f,0f);
 		
 		this.inputComponent = inputComponent;
 		this.inputComponent.setEntity(this);
@@ -74,12 +74,13 @@ public class Character extends Entity {
 	 */
 	public void update(float delta) {
 		frameTime = (frameTime + delta) % 5;
-		updateHitBoxPosition(entityHitBox.width/2,0f);
+		updateHitBoxPosition(0f,0f);
 	}
 
 	void init(Vector2 position, boolean scaled) {
 		currentEntityPosition.x = (scaled) ? position.x * MapManager.UNIT_SCALE : position.x;
 		currentEntityPosition.y = (scaled) ? position.y * MapManager.UNIT_SCALE : position.y;
+		currentEntityPosition.add(0.5f, 0.5f);
 		nextEntityPosition.set(currentEntityPosition);
 	}
 

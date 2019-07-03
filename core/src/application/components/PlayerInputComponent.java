@@ -127,7 +127,7 @@ public class PlayerInputComponent extends InputComponent {
 		}
 		if(mouseButtons.get(Mouse.DOACTION)) {
 			mouseButtons.put(Mouse.DOACTION, false);
-			ProjectileManager.createProjectile(entity,ProjectileManager.FIRE_BALL,ProjectileManager.FIRE_EXPLOSION,entity.getCurrentEntityPosition().cpy().sub(0.5f, 0.5f),
+			ProjectileManager.createProjectile(entity,ProjectileManager.FIRE_BALL,ProjectileManager.FIRE_EXPLOSION,entity.getCurrentEntityPosition().cpy(),
 			                                   getScaledMouseXYCoordinates(rightButtonMouseLastPosition, false));
 		}
 	}
