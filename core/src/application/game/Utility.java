@@ -9,8 +9,10 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 /**
  * Ta klasa odpowiada za ³adowanie, pobieranie i zwalnianie ró¿nego rodzajów zasobów.
@@ -19,6 +21,12 @@ public final class Utility {
 	private static final AssetManager assetManager = new AssetManager();
 	private static final String TAG = Utility.class.getSimpleName();
 	private static InternalFileHandleResolver filePathResolver = new InternalFileHandleResolver();
+	
+	private final static String STATUS_TEXTURE_ATLAS_PATH="skins/statusui.atlas";
+	private final static String STATUS_SKIN_PATH="skins/statusui.json";
+	
+	public static TextureAtlas STATUSUI_TEXTUREATLAS=new TextureAtlas(STATUS_TEXTURE_ATLAS_PATH);
+	public static Skin STATUSUI_SKIN=new Skin(Gdx.files.internal(STATUS_SKIN_PATH), STATUSUI_TEXTUREATLAS);
 	
 	public static void unloadAsset(String assetFilenamePath) {
 		if(assetManager.isLoaded(assetFilenamePath)) {

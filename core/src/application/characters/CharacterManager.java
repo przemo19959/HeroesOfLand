@@ -42,7 +42,7 @@ public class CharacterManager {
 		return characters;
 	}
 	
-	public static Character createCharacter(String entityType, Vector2 position) {
+	public Character createCharacter(String entityType, Vector2 position) {
 		Character character=getCharacter(entityType);
 		if(character!=null) {
 			characters.add(character);
@@ -52,9 +52,9 @@ public class CharacterManager {
 		return character;
 	}
 	
-	private static Character getCharacter(String entityType) {
+	private Character getCharacter(String entityType) {
 		switch (entityType) { //@formatter:off
-			case MapManager.PLAYER:player=new Character(CHARACTER_FOLDER + WARRIOR_PATH,new Vector2(), new PlayerInputComponent());return player;
+			case MapManager.PLAYER:player=new Character(CHARACTER_FOLDER + WARRIOR_PATH,new Vector2(), new PlayerInputComponent(this));return player;
 			case MapManager.MAGE:return new Character(CHARACTER_FOLDER + MAGE_PATH,new Vector2(), new EnemyInputComponent());
 			default: Gdx.app.debug(TAG, "Entity type "+entityType+" not defined!!!");return null;
 		} //@formatter:on

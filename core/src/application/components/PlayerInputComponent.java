@@ -3,6 +3,7 @@ package application.components;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ai.pfa.GraphPath;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Queue;
@@ -11,18 +12,24 @@ import application.game.MainGameScreen;
 import application.maps.MapManager;
 import application.pathfinder.Tile;
 import application.projectiles.ProjectileManager;
+import application.characters.Character;
+import application.characters.CharacterManager;
 
-public class PlayerInputComponent extends InputComponent {	
+public class PlayerInputComponent extends InputComponent {
+	private Vector3 moveMousePosition;
 	private Vector3 leftButtonMouseLastPosition;
 	private Vector3 rightButtonMouseLastPosition;
+	private CharacterManager characterManager;
 	
 	private boolean move;
 	private GraphPath<Tile> tilePath;
 	private Queue<Vector2> entityPath;
 	
-	public PlayerInputComponent() {
+	public PlayerInputComponent(CharacterManager characterManager) {
+		this.characterManager=characterManager;
 		leftButtonMouseLastPosition=new Vector3();
 		rightButtonMouseLastPosition=new Vector3();
+		moveMousePosition=new Vector3();
 		entityPath=new Queue<>(40);
 	}
 
@@ -65,12 +72,22 @@ public class PlayerInputComponent extends InputComponent {
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-//		lastMouseCoordinates.set(screenX, screenY, 0);
-//		MainGameScreen.camera.unproject(lastMouseCoordinates);
-//		goalPosition=getScaledMouseXYCoordinates(false);
-//		MapManager.calculatePath(MainGameScreen.player.getCurrentEntityPosition().add(0.5f, 0.5f), goalPosition);
-//		return true;
-		
+		moveMousePosition.set(screenX, screenY, 0);
+		MainGameScreen.camera.unproject(moveMousePosition);
+		MainGameScreen.drawHealthBar(false, "", "", 1);
+		for(Character character:characterManager.getCharacters()) {
+			if(!character.equals(entity) && isPointInRectangle(character.getEntityHitBox(), getScaledMouseXYCoordinates(moveMousePosition, true))) {
+				MainGameScreen.drawHealthBar(true, "MAGE","Demon",1);
+				break;
+			}	
+		}
+		return true;
+//		return false;
+	}
+	
+	private boolean isPointInRectangle(Rectangle rectangle, Vector2 point) {
+		if(point.x>rectangle.x && point.x<rectangle.x+rectangle.width && point.y>rectangle.y && point.y<rectangle.y+rectangle.height)
+			return true;
 		return false;
 	}
 
@@ -143,8 +160,8 @@ public class PlayerInputComponent extends InputComponent {
 	
 	private Vector2 getScaledMouseXYCoordinates(Vector3 mouseButtonLastPosition, boolean scaled) {
 		Vector2 point=new Vector2();
-		point.x=(scaled)?mouseButtonLastPosition.x*MapManager.UNIT_SCALE:mouseButtonLastPosition.x;
-		point.y=(scaled)?mouseButtonLastPosition.y*MapManager.UNIT_SCALE:mouseButtonLastPosition.y;
+		point.x=(scaled)?mouseButtonLastPosition.x/MapManager.UNIT_SCALE:mouseButtonLastPosition.x;
+		point.y=(scaled)?mouseButtonLastPosition.y/MapManager.UNIT_SCALE:mouseButtonLastPosition.y;
 		return point;
 	}
 			

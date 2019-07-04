@@ -9,7 +9,6 @@ import com.badlogic.gdx.utils.Array;
 
 import application.entity.Entity;
 import application.game.Utility;
-import application.maps.MapManager;
 import application.characters.Character;
 
 public class Projectile extends Entity {
@@ -27,24 +26,19 @@ public class Projectile extends Entity {
 		super(entitySpritePath, startPosition);
 		entityVelocity = new Vector2(4f, 4f);
 		
-		this.caster = caster;
-//		finishPosition = new Vector2(endPosition.sub(8*MapManager.UNIT_SCALE, 8*MapManager.UNIT_SCALE));
-		
+		this.caster = caster;		
 		finishPosition = new Vector2(endPosition).add(0.5f, 0.5f);
-		
 		this.explosionSpritePath = explosionSpritePath;
 		Utility.loadAssetOfGivenType(this.explosionSpritePath, Texture.class);
 		
 		fireDirection = new Vector2(finishPosition.sub(currentEntityPosition).nor());
 		moveAnimation=loadAnimation(entitySpritePath,5);
 		explosionAnimation=loadAnimation(explosionSpritePath, 7);
-//		initHitBoxSize(0.5f, 0.5f,0.5f, 0.5f);
 		initHitBoxSize(0.5f, 0.5f,-0.5f, -0.5f);
 	}
 	
 	public void update(float delta) {
 		frameTime = (frameTime + delta) % 5;
-//		updateHitBoxPosition(entityHitBox.width/2,entityHitBox.height/2);
 		updateHitBoxPosition(-0.5f,-0.5f);
 	}
 	

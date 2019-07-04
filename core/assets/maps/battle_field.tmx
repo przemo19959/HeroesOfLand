@@ -752,9 +752,9 @@
   <object id="14" x="23" y="300.625" width="437.5" height="9.25"/>
   <object id="15" x="198.545" y="31.2727" width="6.36364" height="18.3636"/>
   <object id="16" x="243" y="31.7273" width="6.54546" height="18.3636"/>
-  <object id="31" x="195.375" y="137.875" width="23.125" height="17.875"/>
-  <object id="33" x="243.563" y="138.313" width="23.125" height="17.875"/>
-  <object id="35" x="291.32" y="90.0622" width="23.6106" height="18.2503"/>
+  <object id="31" x="198.466" y="140.602" width="17.125" height="9.875"/>
+  <object id="33" x="246.472" y="140.858" width="17.3068" height="7.69318"/>
+  <object id="35" x="294.229" y="92.9713" width="17.4288" height="7.88666"/>
   <object id="38" x="198.568" y="25.1932" width="50.7386" height="6.3636"/>
  </objectgroup>
  <objectgroup id="5" name="MAP_SPAWNS_LAYER">

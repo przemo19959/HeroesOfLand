@@ -1,11 +1,14 @@
 package application.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.MapObject;
@@ -15,6 +18,8 @@ import com.badlogic.gdx.math.Rectangle;
 
 import application.entity.Entity;
 import application.entity.EntityManager;
+import application.huds.CharacterHUD;
+import application.huds.EnemyHUD;
 import application.maps.MapManager;
 import application.maps.MapManager.MapLayerName;
 import application.projectiles.Projectile;
@@ -39,6 +44,12 @@ public class MainGameScreen implements Screen {
 	private OrthogonalTiledMapRenderer mapRenderer = null;
 	public static OrthographicCamera camera = null;
 	private ShapeRenderer shapeRenderer;
+	
+	private OrthographicCamera hudCamera;
+	private InputMultiplexer multiplexer;
+	private CharacterHUD characterHUD;
+	private static EnemyHUD enemyHUD;
+	
 
 	private MapManager mapManager;
 	private EntityManager entityManager;
@@ -46,12 +57,13 @@ public class MainGameScreen implements Screen {
 	private ProjectileManager projectileManager;
 
 	public static Character player;
+	private static boolean drawHealthBar;
 
 	public MainGameScreen() {
 		mapManager = new MapManager();
 		entityManager = new EntityManager();
 		characterManager = new CharacterManager(mapManager.getEnemySpawnLocationMap(), entityManager);
-		projectileManager = new ProjectileManager(entityManager);
+		projectileManager = new ProjectileManager(entityManager);		
 	}
 
 	@Override
@@ -64,11 +76,22 @@ public class MainGameScreen implements Screen {
 		mapRenderer = new OrthogonalTiledMapRenderer(mapManager.getCurrentMap(), MapManager.UNIT_SCALE);
 		mapRenderer.setView(camera);
 
-		player = CharacterManager.createCharacter(MapManager.PLAYER, mapManager.getPlayerStart());
+		player = characterManager.createCharacter(MapManager.PLAYER, mapManager.getPlayerStart());
 		characterManager.initAllCharacters();
-
 		currentPlayerSprite = player.getEntitySprite();
+		
 		shapeRenderer = new ShapeRenderer();
+		
+		hudCamera=new OrthographicCamera();
+		hudCamera.setToOrtho(false, VIEWPORT.physicalWidth, VIEWPORT.physicalHeight);
+		characterHUD=new CharacterHUD(hudCamera);
+		
+		enemyHUD=new EnemyHUD(hudCamera);
+		
+		multiplexer=new InputMultiplexer();
+		multiplexer.addProcessor(characterHUD.stage);
+		multiplexer.addProcessor(player.getInputComponent());
+		Gdx.input.setInputProcessor(multiplexer);
 	}
 
 	@Override
@@ -116,17 +139,11 @@ public class MainGameScreen implements Screen {
 		characterManager.getCharacters().forEach(character -> {
 //			mapRenderer.getBatch().draw(character.getEntityTextureRegion(), character.getEntitySprite().getX()-0.5f, character.getEntitySprite().getY()-0.5f, 1, 1);
 			mapRenderer.getBatch().draw(character.getEntityTextureRegion(), character.getCurrentEntityPosition().x-0.5f, character.getCurrentEntityPosition().y-0.5f, 1, 1);
-			 shapeRenderer.rect(character.getEntityHitBox().x*MapManager.UNIT_SCALE, character.getEntityHitBox().y*MapManager.UNIT_SCALE
-			 , character.getEntityHitBox().width*MapManager.UNIT_SCALE, character.getEntityHitBox().height*MapManager.UNIT_SCALE);
+//			 shapeRenderer.rect(character.getEntityHitBox().x*MapManager.UNIT_SCALE, character.getEntityHitBox().y*MapManager.UNIT_SCALE
+//			 , character.getEntityHitBox().width*MapManager.UNIT_SCALE, character.getEntityHitBox().height*MapManager.UNIT_SCALE);
 //			 shapeRenderer.rect(character.getEntitySprite().getX(), character.getEntitySprite().getY(), character.getEntitySprite().getWidth(), character.getEntitySprite().getHeight());
 		});
 
-		// characterManager.getCharacters().sort((Character.yComparator.reversed()).forEach(entity->{
-		// mapRenderer.getBatch().draw(entity.getEntityTextureRegion(), entity.getEntitySprite().getX(), entity.getEntitySprite().getY(), 1, 1);
-		// //To rysuje obwód hitboxa encji
-		//// shapeRenderer.rect(entity.entityHitBox.x*MapManager.UNIT_SCALE, entity.entityHitBox.y*MapManager.UNIT_SCALE
-		//// , entity.entityHitBox.width*MapManager.UNIT_SCALE, entity.entityHitBox.height*MapManager.UNIT_SCALE);
-		// });
 		projectileManager.getProjectiles().forEach(projectile -> {
 //			mapRenderer.getBatch().draw(projectile.getEntityTextureRegion(), projectile.getEntitySprite().getX(), projectile.getEntitySprite().getY(),
 //										(projectile.getEntitySprite().getWidth() * MapManager.UNIT_SCALE) / 2, (projectile.getEntitySprite().getHeight() * MapManager.UNIT_SCALE) / 2, 1, 1, 1, 1,
@@ -134,8 +151,8 @@ public class MainGameScreen implements Screen {
 			mapRenderer.getBatch().draw(projectile.getEntityTextureRegion(), projectile.getCurrentEntityPosition().x-1, projectile.getCurrentEntityPosition().y-1,
 										(projectile.getEntitySprite().getWidth() * MapManager.UNIT_SCALE) / 2, (projectile.getEntitySprite().getHeight() * MapManager.UNIT_SCALE) / 2, 1, 1, 1, 1,
 										projectile.getRotationAngle());
-			 shapeRenderer.rect(projectile.getEntityHitBox().x*MapManager.UNIT_SCALE, projectile.getEntityHitBox().y*MapManager.UNIT_SCALE
-			 , projectile.getEntityHitBox().width*MapManager.UNIT_SCALE, projectile.getEntityHitBox().height*MapManager.UNIT_SCALE);
+//			 shapeRenderer.rect(projectile.getEntityHitBox().x*MapManager.UNIT_SCALE, projectile.getEntityHitBox().y*MapManager.UNIT_SCALE
+//			 , projectile.getEntityHitBox().width*MapManager.UNIT_SCALE, projectile.getEntityHitBox().height*MapManager.UNIT_SCALE);
 			// shapeRenderer.rect(projectile.getProjectileSprite().getX(), projectile.getProjectileSprite().getY()
 			// , projectile.getProjectileSprite().getWidth()*MapManager.UNIT_SCALE, projectile.getProjectileSprite().getHeight()*MapManager.UNIT_SCALE);
 		});
@@ -144,10 +161,21 @@ public class MainGameScreen implements Screen {
 		
 		mapManager.drawGrid(shapeRenderer);
 		shapeRenderer.end();
+		
+		characterHUD.render(delta);
+		if(drawHealthBar) {
+			enemyHUD.render(delta);
+		}		
 	}
-
+	
+	public static void drawHealthBar(boolean draw, String characterName, String enemyInfo, int healthPointsInProcents) {
+		enemyHUD.setValues(characterName, enemyInfo, healthPointsInProcents);
+		drawHealthBar=draw;
+	}
+	
 	@Override
 	public void resize(int width, int height) {
+		characterHUD.resize(width, height);
 	}
 
 	@Override
@@ -164,6 +192,7 @@ public class MainGameScreen implements Screen {
 			entity.dispose();
 		Gdx.input.setInputProcessor(null);
 		mapRenderer.dispose();
+		characterHUD.dispose();
 	}
 
 	private void setupViewport(int width, int height) {

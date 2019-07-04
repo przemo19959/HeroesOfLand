@@ -64,6 +64,10 @@ public class Character extends Entity {
 		moveDirection=new Vector2();
 	}
 	
+	public InputComponent getInputComponent() {
+		return inputComponent;
+	}
+
 	/**
 	 * Ta metoda aktualizuje czas ramki, tak aby odtwarzany by³ poprawny region
 	 * tekstury encji. Nastêpnie aktualizowany jest hitbox encji (aktualizacja

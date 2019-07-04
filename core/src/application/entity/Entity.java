@@ -60,7 +60,6 @@ public abstract class Entity {
 			minX = (nextEntityPosition.x+xOffset) / MapManager.UNIT_SCALE;
 			minY = (nextEntityPosition.y+yOffset) / MapManager.UNIT_SCALE;
 		}
-//		entityHitBox.setPosition(minX, minY);
 		entityHitBox.setCenter(minX, minY);
 	}
 	
