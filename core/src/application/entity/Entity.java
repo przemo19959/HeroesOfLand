@@ -38,7 +38,6 @@ public abstract class Entity {
 	protected abstract void update(float delta);
 	public abstract void onNoCollision(float delta);
 	public void dispose() {};
-	public boolean onCollision() {return false;};
 	
 	public Vector2 getCurrentEntityPosition() {
 		return currentEntityPosition;

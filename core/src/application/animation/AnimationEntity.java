@@ -30,14 +30,22 @@ class AnimationEntity{
 	private int width;
 	private int height;
 	
+	private float animationRotation;
+	
 	AnimationEntity(String animationSpritePath, Entity caster, int width, int height,int numberOfFrames) {
 		Utility.loadAssetOfGivenType(animationSpritePath, Texture.class);
 		currentAnimationPosition = new Vector2(caster.getCurrentEntityPosition());
-		this.direction=(caster instanceof Character)?((Character)caster).getCurrentEntityDirection():Direction.LEFT;
-		setPositionAccordingToDirection(caster.getCurrentEntityPosition());
+		if(caster instanceof Character) {
+			direction=((Character)caster).getCurrentEntityDirection();
+			setPositionAccordingToDirection(caster.getCurrentEntityPosition());
+		}else {
+			direction=Direction.RIGHT;
+			currentAnimationPosition.set(caster.getCurrentEntityPosition().sub(1f, 1f));
+		}		
 		this.width=width;
 		this.height=height;
 		loadAttackAnimations(animationSpritePath, numberOfFrames);
+		animationRotation=getRotationForGivenDirection(direction);
 	}
 	
 	private void setPositionAccordingToDirection(Vector2 casterPosition) {
@@ -52,9 +60,8 @@ class AnimationEntity{
 	boolean update(Batch batch, float delta) {
 		frameTime = (frameTime + delta) % 5;
 		animationTextureRegion=animation.getKeyFrame(frameTime);
-		float rotation=getRotationForGivenDirection(direction);
 		batch.draw(animationTextureRegion, currentAnimationPosition.x, currentAnimationPosition.y, 0, 0, width*MapManager.UNIT_SCALE
-		           ,height*MapManager.UNIT_SCALE, 1, 1, rotation);
+		           ,height*MapManager.UNIT_SCALE, 1, 1, animationRotation);
 		return (animation.isAnimationFinished(frameTime))?true:false; 
 	}
 	

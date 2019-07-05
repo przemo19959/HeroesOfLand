@@ -15,25 +15,19 @@ public class Projectile extends Entity {
 	private static final String TAG = Projectile.class.getSimpleName();
 
 	private Animation<TextureRegion> moveAnimation;
-	private Animation<TextureRegion> explosionAnimation;
 	private Vector2 fireDirection;
 	private Vector2 finishPosition;
 	private final Character caster;
-	private boolean zeroTime=true;
-	private String explosionSpritePath;
 
-	Projectile(Character caster, String entitySpritePath, Vector2 startPosition, Vector2 endPosition, String explosionSpritePath) {
+	Projectile(Character caster, String entitySpritePath, Vector2 startPosition, Vector2 endPosition) {
 		super(entitySpritePath, startPosition);
 		entityVelocity = new Vector2(4f, 4f);
 		
 		this.caster = caster;		
 		finishPosition = new Vector2(endPosition).add(0.5f, 0.5f);
-		this.explosionSpritePath = explosionSpritePath;
-		Utility.loadAssetOfGivenType(this.explosionSpritePath, Texture.class);
 		
 		fireDirection = new Vector2(finishPosition.sub(currentEntityPosition).nor());
 		moveAnimation=loadAnimation(entitySpritePath,5);
-		explosionAnimation=loadAnimation(explosionSpritePath, 7);
 		initHitBoxSize(0.5f, 0.5f,-0.5f, -0.5f);
 	}
 	
@@ -76,14 +70,5 @@ public class Projectile extends Entity {
 		setCurrentPosition(nextEntityPosition);
 		calculateNextPosition(deltaTime);
 		entityTextureRegion = moveAnimation.getKeyFrame(frameTime);
-	}
-
-	public boolean onCollision() {
-		if(zeroTime) {
-			frameTime=0f;
-			zeroTime=false;
-		}
-		entityTextureRegion=explosionAnimation.getKeyFrame(frameTime);
-		return explosionAnimation.isAnimationFinished(frameTime);
 	}
 }

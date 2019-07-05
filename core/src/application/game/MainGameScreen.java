@@ -124,8 +124,10 @@ public class MainGameScreen implements Screen {
 				if(!isCollisionWithMapLayer(entity.getEntityHitBox()) && !isCollisionBetweenProjectileAndCharacters((Projectile) entity)) {
 					entity.onNoCollision(delta);
 				} else {
-					if(entity.onCollision())
-						projectileManager.removeProjectile((Projectile) entity);
+					animationEntityObserver.addAnimation(ProjectileManager.FIRE_EXPLOSION, entity, 16, 16, 7);
+					projectileManager.removeProjectile((Projectile)entity);
+//					if(entity.onCollision())
+//						projectileManager.removeProjectile((Projectile) entity);
 					// tutaj, gdy nast¹pi³a kolizja pocisku i encji lub mapy
 				}
 			}

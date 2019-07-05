@@ -20,8 +20,8 @@ public class ProjectileManager {
 		ProjectileManager.entityManager = entityManager;
 	}
 
-	public static void createProjectile(Character caster, String projectileSpritePath, String explosionSpritePath, Vector2 startPosition, Vector2 endPosition) {
-		Projectile projectile = new Projectile(caster, projectileSpritePath, startPosition, endPosition, explosionSpritePath);
+	public static void createProjectile(Character caster, String projectileSpritePath, Vector2 startPosition, Vector2 endPosition) {
+		Projectile projectile = new Projectile(caster, projectileSpritePath, startPosition, endPosition);
 		projectiles.add(projectile);
 		entityManager.addEntity(projectile);
 	}
