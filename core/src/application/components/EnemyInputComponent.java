@@ -3,7 +3,6 @@ package application.components;
 import com.badlogic.gdx.math.Vector2;
 
 import application.characters.Character.Direction;
-import application.characters.Character.State;
 import application.game.MainGameScreen;
 
 public class EnemyInputComponent extends InputComponent {
@@ -59,7 +58,7 @@ public class EnemyInputComponent extends InputComponent {
 //		followPlayer(delta, entity.getCurrentEntityDirection(), entity.getEntityState()); //tymczasowo
 	}
 	
-	private void followPlayer(float delta, Direction direction, State state) {
+	private void followPlayer(float delta, Direction direction) {
 		Vector2 playerPosition=MainGameScreen.player.getCurrentEntityPosition();
 		if(playerPosition.dst2(entity.getCurrentEntityPosition())<followDistance) {
 			entity.calculateNextPositionToward(playerPosition.cpy(), delta);

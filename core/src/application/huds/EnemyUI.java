@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import application.game.MyGdxGame;
 import application.game.Utility;
 
-public class EnemyUI extends Window {
+class EnemyUI extends Window {
 	private static final String TAG=EnemyUI.class.getSimpleName();
 	private Label enemyName;
 	private Label enemyInfo;
@@ -40,7 +40,7 @@ public class EnemyUI extends Window {
 		setPosition(MyGdxGame.VIEW_WIDTH/2f-getWidth()/2f, MyGdxGame.VIEW_HEIGHT-getHeight());
 	}
 	
-	public void setValues(String enemyName, String enemyInfo, int healthPointsInProcents) {
+	void setValues(String enemyName, String enemyInfo, int healthPointsInProcents) {
 		this.enemyName.setText(enemyName);
 		this.enemyInfo.setText(enemyInfo);
 		if(healthPointsInProcents>=0 && healthPointsInProcents<=1)

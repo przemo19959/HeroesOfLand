@@ -22,7 +22,7 @@ public abstract class Entity {
 	protected TextureRegion entityTextureRegion;
 	public static final int FRAME_WIDTH = 16;
 	public static final int FRAME_HEIGHT = 16;
-	protected Rectangle entityHitBox;
+	private Rectangle entityHitBox;
 	
 	public Entity(String entitySpritePath, Vector2 startPosition) {
 		this.entitySpritePath = entitySpritePath;

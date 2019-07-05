@@ -759,9 +759,9 @@
  </objectgroup>
  <objectgroup id="5" name="MAP_SPAWNS_LAYER">
   <object id="26" name="PLAYER_START" x="208.364" y="63.8636" width="16" height="16"/>
-  <object id="28" name="MAGE" x="336.122" y="112.378" width="15" height="16"/>
-  <object id="29" name="MAGE" x="288.795" y="159.932" width="15" height="16"/>
-  <object id="30" name="MAGE" x="368.864" y="160.182" width="15" height="16"/>
+  <object id="28" name="MAGE" x="336.292" y="114.311" width="12.8182" height="13.2727"/>
+  <object id="29" name="MAGE" x="288.333" y="161.173" width="13.7273" height="14.5455"/>
+  <object id="30" name="MAGE" x="368.366" y="161.336" width="13" height="14.3636"/>
  </objectgroup>
  <objectgroup id="6" name="MAP_PORTAL_LAYER">
   <object id="27" name="TOWN" x="206.25" y="25" width="35.75" height="19"/>

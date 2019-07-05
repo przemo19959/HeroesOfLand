@@ -22,6 +22,7 @@ public class PlayerInputComponent extends InputComponent {
 	private CharacterManager characterManager;
 	
 	private boolean move;
+	private boolean enemyClicked;
 	private GraphPath<Tile> tilePath;
 	private Queue<Vector2> entityPath;
 	
@@ -82,7 +83,6 @@ public class PlayerInputComponent extends InputComponent {
 			}	
 		}
 		return true;
-//		return false;
 	}
 	
 	private boolean isPointInRectangle(Rectangle rectangle, Vector2 point) {
@@ -104,6 +104,12 @@ public class PlayerInputComponent extends InputComponent {
 		mouseButtons.put(Mouse.SELECT, true);
 		leftButtonMouseLastPosition.set(x, y,0);
 		MainGameScreen.camera.unproject(leftButtonMouseLastPosition);
+		for(Character character:characterManager.getCharacters()) {
+			if(!character.equals(entity) && isPointInRectangle(character.getEntityHitBox(), getScaledMouseXYCoordinates(leftButtonMouseLastPosition, true))) {
+				enemyClicked=true;
+				break;
+			}	
+		}
 	}
 	
 	private void doActionMouseButtonPressed(int x, int y){
@@ -130,6 +136,7 @@ public class PlayerInputComponent extends InputComponent {
 	public void update(float delta) {
 		processInput();
 		if(move) { //@formatter:off
+//			System.out.println("move");
 			if(entityPath.size>0) moveTowardPoint(delta, entityPath.first());
 			else move=false;
 		} //@formatter:on
@@ -147,6 +154,15 @@ public class PlayerInputComponent extends InputComponent {
 			ProjectileManager.createProjectile(entity,ProjectileManager.FIRE_BALL,ProjectileManager.FIRE_EXPLOSION,entity.getCurrentEntityPosition().cpy(),
 			                                   getScaledMouseXYCoordinates(rightButtonMouseLastPosition, false));
 		}
+	}
+	
+	public boolean stopMovingAndAttack() {
+		if(move && enemyClicked) {
+			move=false;
+			enemyClicked=false;
+			return true;
+		}
+		return false;
 	}
 	
 	private void addTilesCentersToQueue() {

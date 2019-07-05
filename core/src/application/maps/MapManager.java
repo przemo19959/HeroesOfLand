@@ -114,12 +114,7 @@ public class MapManager {
 		tileSet = currentMap.getTileSets().getTileSet(0);
 		tileArray = new Tile[currentMap.getProperties().get("height", Integer.class)][currentMap.getProperties().get("width", Integer.class)];
 		scanTileLayersAndCreateTileNodes();
-		connectAvailableTiles();
-		
-//		tileGraph.printCount();
-//		for(int i1 = 0;i1 < tileArray.length;i1++) {
-//			System.out.println(Arrays.toString(tileArray[i1]));
-//		}
+		connectAvailableTiles();		
 	}
 
 	private void connectAvailableTiles() {

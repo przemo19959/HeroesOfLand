@@ -6,9 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.MapObject;
@@ -24,6 +22,7 @@ import application.maps.MapManager;
 import application.maps.MapManager.MapLayerName;
 import application.projectiles.Projectile;
 import application.projectiles.ProjectileManager;
+import application.animation.AnimationEntityObserver;
 import application.characters.Character;
 import application.characters.CharacterManager;
 
@@ -55,6 +54,7 @@ public class MainGameScreen implements Screen {
 	private EntityManager entityManager;
 	private CharacterManager characterManager;
 	private ProjectileManager projectileManager;
+	private final AnimationEntityObserver animationEntityObserver;
 
 	public static Character player;
 	private static boolean drawHealthBar;
@@ -63,7 +63,8 @@ public class MainGameScreen implements Screen {
 		mapManager = new MapManager();
 		entityManager = new EntityManager();
 		characterManager = new CharacterManager(mapManager.getEnemySpawnLocationMap(), entityManager);
-		projectileManager = new ProjectileManager(entityManager);		
+		projectileManager = new ProjectileManager(entityManager);
+		animationEntityObserver=new AnimationEntityObserver();
 	}
 
 	@Override
@@ -111,9 +112,14 @@ public class MainGameScreen implements Screen {
 
 		for(Entity entity:entityManager.getEntities()) {
 			if(entity.isEntity(Character.class)) {
-				if(!isCollisionBetweenEntities(player, entity) && !isCollisionPlayerWithCharacters(entity)) {
-					entity.onNoCollision(delta);// tutaj sprawdzana jest kolizja hitboxa z map¹
-				}
+				if(!isCollisionBetweenEntities(player, entity)) {
+					if(!isCollisionPlayerWithCharacters(entity)) {
+						entity.onNoCollision(delta);// tutaj sprawdzana jest kolizja hitboxa z map¹
+					}else {
+						if(player.stopMovingAndAttack())
+							animationEntityObserver.addAnimation("attacks/sword-slice.png", player,16, 16, 10);
+					}
+				}	
 			} else if(entity.isEntity(Projectile.class)) {
 				if(!isCollisionWithMapLayer(entity.getEntityHitBox()) && !isCollisionBetweenProjectileAndCharacters((Projectile) entity)) {
 					entity.onNoCollision(delta);
@@ -156,8 +162,15 @@ public class MainGameScreen implements Screen {
 			// shapeRenderer.rect(projectile.getProjectileSprite().getX(), projectile.getProjectileSprite().getY()
 			// , projectile.getProjectileSprite().getWidth()*MapManager.UNIT_SCALE, projectile.getProjectileSprite().getHeight()*MapManager.UNIT_SCALE);
 		});
+		animationEntityObserver.updateAllAnimations(mapRenderer.getBatch(), delta);
 		mapRenderer.getBatch().end();
 		mapRenderer.render(new int[]{6});
+		
+//		spriteBatch.begin();
+		
+//		spriteBatch.end();
+		
+		
 		
 		mapManager.drawGrid(shapeRenderer);
 		shapeRenderer.end();

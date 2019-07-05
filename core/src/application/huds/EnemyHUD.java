@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class EnemyHUD implements Screen{
-	public Stage stage;
+	private Stage stage;
 	private Viewport viewport;
 	private EnemyUI enemyUI;
 	

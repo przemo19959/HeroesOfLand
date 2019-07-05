@@ -1,7 +1,6 @@
 package application.huds;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
@@ -9,11 +8,10 @@ import com.badlogic.gdx.utils.Align;
 
 import application.game.Utility;
 
-public class MainBarUI extends Window {
+class MainBarUI extends Window {
 	private Image hpBar;
 	private Image mpBar;
 	private Image xpBar;
-	private ImageButton inventoryButton;
 	// Attributes
 	private int currentHealthPoints = 50;
 	private int currentManaPoints = 50;
@@ -76,9 +74,4 @@ public class MainBarUI extends Window {
 		
 		hpBar.setWidth(hpBar.getWidth()-10);
 	}
-	
-	public void setValueOfBar() {
-		
-	}
-
 }
