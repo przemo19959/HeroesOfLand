@@ -23,6 +23,8 @@ public class PlayerInputComponent extends InputComponent {
 	
 	private boolean move;
 	private boolean enemyClicked;
+	private Character attackedCharacter;
+	
 	private GraphPath<Tile> tilePath;
 	private Queue<Vector2> entityPath;
 	
@@ -75,10 +77,10 @@ public class PlayerInputComponent extends InputComponent {
 	public boolean mouseMoved(int screenX, int screenY) {
 		moveMousePosition.set(screenX, screenY, 0);
 		MainGameScreen.camera.unproject(moveMousePosition);
-		MainGameScreen.drawHealthBar(false, "", "", 1);
+		MainGameScreen.drawHealthBar(false,null);
 		for(Character character:characterManager.getCharacters()) {
 			if(!character.equals(entity) && isPointInRectangle(character.getEntityHitBox(), getScaledMouseXYCoordinates(moveMousePosition, true))) {
-				MainGameScreen.drawHealthBar(true, "MAGE","Demon",1);
+				MainGameScreen.drawHealthBar(true,character);
 				break;
 			}	
 		}
@@ -107,6 +109,7 @@ public class PlayerInputComponent extends InputComponent {
 		for(Character character:characterManager.getCharacters()) {
 			if(!character.equals(entity) && isPointInRectangle(character.getEntityHitBox(), getScaledMouseXYCoordinates(leftButtonMouseLastPosition, true))) {
 				enemyClicked=true;
+				attackedCharacter=character;
 				break;
 			}	
 		}
@@ -156,13 +159,13 @@ public class PlayerInputComponent extends InputComponent {
 		}
 	}
 	
-	public boolean stopMovingAndAttack() {
+	public Character stopMovingAndAttack() {
 		if(move && enemyClicked) {
 			move=false;
 			enemyClicked=false;
-			return true;
+			return attackedCharacter;
 		}
-		return false;
+		return null;
 	}
 	
 	private void addTilesCentersToQueue() {

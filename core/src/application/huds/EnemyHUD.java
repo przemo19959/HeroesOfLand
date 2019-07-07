@@ -6,6 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import application.characters.Character;
+
 public class EnemyHUD implements Screen{
 	private Stage stage;
 	private Viewport viewport;
@@ -19,8 +21,8 @@ public class EnemyHUD implements Screen{
 		stage.addActor(enemyUI);
 	}
 	
-	public void setValues(String enemyName, String enemyInfo, int healthPointsInProcents) {
-		enemyUI.setValues(enemyName, enemyInfo, healthPointsInProcents);
+	public void setValues(String enemyName, String enemyInfo, Character enemy) {
+		enemyUI.setValues(enemyName, enemyInfo, enemy);
 	}
 
 	@Override

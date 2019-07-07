@@ -31,6 +31,9 @@ public class Character extends Entity {
 	private InputComponent inputComponent;
 	public final static Comparator<Character> yComparator = ((entity1, entity2) -> Float.compare(entity1.currentEntityPosition.y, entity2.currentEntityPosition.y));
 	private Vector2 moveDirection;
+	
+	private int maxHealthPoints;
+	private int currentHealthPoints;
 
 	public Vector2 getNextPlayerPosition() {
 		return nextEntityPosition;
@@ -43,8 +46,9 @@ public class Character extends Entity {
 		LEFT;
 	}
 
-	Character(String entitySpritePath, Vector2 startPosition, InputComponent inputComponent) {
+	Character(String entitySpritePath, Vector2 startPosition, InputComponent inputComponent, int healthPoints) {
 		super(entitySpritePath, startPosition);
+		maxHealthPoints=currentHealthPoints=healthPoints;
 		entityVelocity = new Vector2(2f, 2f);
 		loadAllAnimations();
 		initHitBoxSize(0.1f, 0.1f, 0f, 0f);
@@ -55,6 +59,18 @@ public class Character extends Entity {
 			Gdx.input.setInputProcessor(inputComponent);
 		moveDirection = new Vector2();
 	}
+	
+	public void addHelthPoints(int healthPoints) {
+		currentHealthPoints+=healthPoints;
+	}
+	
+	public int getHealthPoints() {
+		return currentHealthPoints;
+	}
+	
+	public int getMaxHealthPoints() {
+		return maxHealthPoints;
+	}
 
 	public InputComponent getInputComponent() {
 		return inputComponent;
@@ -64,10 +80,10 @@ public class Character extends Entity {
 		return currentEntityDirection;
 	}
 
-	public boolean stopMovingAndAttack() {
+	public Character stopMovingAndAttack() {
 		if(inputComponent instanceof PlayerInputComponent)
 			return ((PlayerInputComponent) inputComponent).stopMovingAndAttack();
-		return false;
+		return null;
 	}
 
 	/**

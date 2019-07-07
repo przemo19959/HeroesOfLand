@@ -12,8 +12,8 @@ public class AnimationEntityObserver {
 		animationEntities=new Array<>(50);
 	}
 	
-	public void addAnimation(String animationSpritePath, Entity caster, int width, int height,int numberOfFrames) {
-		AnimationEntity animationEntity=new AnimationEntity(animationSpritePath, caster, width, height, numberOfFrames);
+	public void addAnimation(String animationSpritePath, Entity caster, int width, int height,int numberOfFrames, boolean noRotation) {
+		AnimationEntity animationEntity=new AnimationEntity(animationSpritePath, caster, width, height, numberOfFrames, noRotation);
 		animationEntities.add(animationEntity);
 	}
 	
@@ -25,7 +25,7 @@ public class AnimationEntityObserver {
 		for(AnimationEntity animationEntity:animationEntities) {
 			if(animationEntity.update(batch,delta))
 				removeAnimation(animationEntity);
-		}
+			}
 	}
 	
 }

@@ -54,8 +54,8 @@ public class CharacterManager {
 	
 	private Character getCharacter(String entityType) {
 		switch (entityType) { //@formatter:off
-			case MapManager.PLAYER:player=new Character(CHARACTER_FOLDER + WARRIOR_PATH,new Vector2(), new PlayerInputComponent(this));return player;
-			case MapManager.MAGE:return new Character(CHARACTER_FOLDER + MAGE_PATH,new Vector2(), new EnemyInputComponent());
+			case MapManager.PLAYER:player=new Character(CHARACTER_FOLDER + WARRIOR_PATH,new Vector2(), new PlayerInputComponent(this),200);return player;
+			case MapManager.MAGE:return new Character(CHARACTER_FOLDER + MAGE_PATH,new Vector2(), new EnemyInputComponent(),80);
 			default: Gdx.app.debug(TAG, "Entity type "+entityType+" not defined!!!");return null;
 		} //@formatter:on
 	}

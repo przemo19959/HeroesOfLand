@@ -49,7 +49,6 @@ public class MainGameScreen implements Screen {
 	private CharacterHUD characterHUD;
 	private static EnemyHUD enemyHUD;
 	
-
 	private MapManager mapManager;
 	private EntityManager entityManager;
 	private CharacterManager characterManager;
@@ -85,7 +84,7 @@ public class MainGameScreen implements Screen {
 		
 		hudCamera=new OrthographicCamera();
 		hudCamera.setToOrtho(false, VIEWPORT.physicalWidth, VIEWPORT.physicalHeight);
-		characterHUD=new CharacterHUD(hudCamera);
+		characterHUD=new CharacterHUD(hudCamera, player.getHealthPoints(),50,100);
 		
 		enemyHUD=new EnemyHUD(hudCamera);
 		
@@ -116,19 +115,26 @@ public class MainGameScreen implements Screen {
 					if(!isCollisionPlayerWithCharacters(entity)) {
 						entity.onNoCollision(delta);// tutaj sprawdzana jest kolizja hitboxa z map¹
 					}else {
-						if(player.stopMovingAndAttack())
-							animationEntityObserver.addAnimation("attacks/sword-slice.png", player,16, 16, 10);
+						Character attackedCharacter;
+						if((attackedCharacter=player.stopMovingAndAttack())!=null) {
+							//Atak 1
+//							animationEntityObserver.addAnimation("attacks/sword-slice.png", player,16, 16, 10,false);
+//							attackedCharacter.addHelthPoints(-10);
+							
+							//Atak 2
+							animationEntityObserver.addAnimation("attacks/sword-drop.png", player,16, 32, 18,true);
+							attackedCharacter.addHelthPoints(-30);
+							
+							enemyHUD.setValues("MAGE", "Demon", attackedCharacter);
+						}
 					}
 				}	
 			} else if(entity.isEntity(Projectile.class)) {
 				if(!isCollisionWithMapLayer(entity.getEntityHitBox()) && !isCollisionBetweenProjectileAndCharacters((Projectile) entity)) {
 					entity.onNoCollision(delta);
 				} else {
-					animationEntityObserver.addAnimation(ProjectileManager.FIRE_EXPLOSION, entity, 16, 16, 7);
+					animationEntityObserver.addAnimation(ProjectileManager.FIRE_EXPLOSION, entity, 16, 16, 7,false);
 					projectileManager.removeProjectile((Projectile)entity);
-//					if(entity.onCollision())
-//						projectileManager.removeProjectile((Projectile) entity);
-					// tutaj, gdy nast¹pi³a kolizja pocisku i encji lub mapy
 				}
 			}
 		}
@@ -183,8 +189,8 @@ public class MainGameScreen implements Screen {
 		}		
 	}
 	
-	public static void drawHealthBar(boolean draw, String characterName, String enemyInfo, int healthPointsInProcents) {
-		enemyHUD.setValues(characterName, enemyInfo, healthPointsInProcents);
+	public static void drawHealthBar(boolean draw, Character enemy) {
+		enemyHUD.setValues("MAGE", "Demon", enemy);
 		drawHealthBar=draw;
 	}
 	
