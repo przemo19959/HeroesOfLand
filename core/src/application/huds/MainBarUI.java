@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Align;
 
 import application.game.Utility;
 
-class MainBarUI extends Window {
+public class MainBarUI extends Window {
 	private Image hpBar;
 	private Image mpBar;
 	private Image xpBar;

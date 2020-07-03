@@ -3,29 +3,28 @@ package application.animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Array;
 
-import application.entity.Entity;
+import application.entities.Entity;
 
 public class AnimationEntityObserver {
 	private Array<AnimationEntity> animationEntities;
-	
+
 	public AnimationEntityObserver() {
-		animationEntities=new Array<>(50);
+		animationEntities = new Array<>(50);
 	}
-	
-	public void addAnimation(String animationSpritePath, Entity caster, int width, int height,int numberOfFrames, boolean noRotation) {
-		AnimationEntity animationEntity=new AnimationEntity(animationSpritePath, caster, width, height, numberOfFrames, noRotation);
+
+	public void addAnimation(String animationSpritePath, Entity caster, int width, int height, int numberOfFrames, boolean noRotation) {
+		AnimationEntity animationEntity = new AnimationEntity(animationSpritePath, caster, width, height, numberOfFrames, noRotation);
 		animationEntities.add(animationEntity);
 	}
-	
+
 	private void removeAnimation(AnimationEntity animationEntity) {
 		animationEntities.removeValue(animationEntity, true);
 	}
-	
-	public void updateAllAnimations(Batch batch,float delta) {
+
+	public void updateAllAnimations(Batch batch, float delta) {
 		for(AnimationEntity animationEntity:animationEntities) {
-			if(animationEntity.update(batch,delta))
+			if(animationEntity.update(batch, delta))
 				removeAnimation(animationEntity);
-			}
+		}
 	}
-	
 }

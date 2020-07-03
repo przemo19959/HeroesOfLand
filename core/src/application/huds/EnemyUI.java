@@ -5,9 +5,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 
+import application.entities.concrete.entities.Character;
 import application.game.MyGdxGame;
 import application.game.Utility;
-import application.characters.Character;
 
 class EnemyUI extends Window {
 //	private static final String TAG=EnemyUI.class.getSimpleName();

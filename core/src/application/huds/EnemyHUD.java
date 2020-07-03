@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import application.characters.Character;
+import application.entities.concrete.entities.Character;
 
 public class EnemyHUD implements Screen{
 	private Stage stage;

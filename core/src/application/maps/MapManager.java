@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MapManager {
+	private static final String NO_COLLISION_LAYER = "ERROR: There is no collision layer in current map!";
+
 	private static final String TAG = MapManager.class.getSimpleName();
 
 	// All maps for the game
@@ -246,5 +248,25 @@ public class MapManager {
 				}
 			}//@formatter:on
 		}
+	}
+	
+	public boolean isCollisionWithCollisionLayer(Rectangle hitBox) {
+		if(doesGivenLayerExists(MapLayerName.MAP_COLLISION_LAYER)) {
+			Rectangle rectangle = null;
+			for(MapObject object:getLayer(MapLayerName.MAP_COLLISION_LAYER).getObjects()) {
+				if(object instanceof RectangleMapObject) {
+					rectangle = ((RectangleMapObject) object).getRectangle();
+					if(hitBox.overlaps(rectangle)) {
+						return true;
+					}
+				}
+			}
+		}else
+			Gdx.app.debug(TAG, NO_COLLISION_LAYER);
+		return false;
+	}
+
+	private boolean doesGivenLayerExists(MapLayerName layerName) {
+		return getLayer(layerName) != null;
 	}
 }

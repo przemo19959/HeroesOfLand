@@ -1,7 +1,9 @@
 package application.components;
 
 import com.badlogic.gdx.InputProcessor;
-import application.characters.Character;
+
+import application.entities.EntityManager;
+import application.entities.concrete.entities.Character;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +14,8 @@ import java.util.Map;
  */
 public abstract class InputComponent implements InputProcessor {
 	protected Character entity;
+	protected boolean collidedWithEntity;
+	private final EntityManager entityManager;
 	
 	/**
 	 * Enum przechowuj¹ce listê aktywnych (obs³ugiwanych w grze) przycisków
@@ -34,8 +38,6 @@ public abstract class InputComponent implements InputProcessor {
 	}
 
 	protected static Map<Keys, Boolean> keys = new HashMap<Keys, Boolean>();
-	protected static Map<Mouse, Boolean> mouseButtons = new HashMap<Mouse, Boolean>();
-
 	static {
 		keys.put(Keys.LEFT, false);
 		keys.put(Keys.RIGHT, false);
@@ -44,13 +46,19 @@ public abstract class InputComponent implements InputProcessor {
 		keys.put(Keys.QUIT, false);
 		keys.put(Keys.FIRE, false);
 	};
-
+	
+	protected static Map<Mouse, Boolean> mouseButtons = new HashMap<Mouse, Boolean>();
 	static {
 		mouseButtons.put(Mouse.SELECT, false);
 		mouseButtons.put(Mouse.DOACTION, false);
 	};
 	
-	protected InputComponent() {
+	public InputComponent(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
+	
+	public EntityManager getEntityManager() {
+		return entityManager;
 	}
 	
 	/**
@@ -62,6 +70,10 @@ public abstract class InputComponent implements InputProcessor {
 	
 	public void setEntity(Character entity) {
 		this.entity=entity;
+	}
+
+	public void setCollidedWithEntity(boolean collidedWithEntity) {
+		this.collidedWithEntity = collidedWithEntity;
 	}
 
 //	protected void moveEntity(float delta, Direction direction) {
