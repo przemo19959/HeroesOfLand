@@ -19,7 +19,6 @@ import application.entities.concrete.entities.Character;
 public class PlayerInputComponent extends InputComponent {
 	private static final String TAG = PlayerInputComponent.class.getSimpleName();
 
-	
 	private Vector3 leftButtonMouseLastPosition;
 	private Vector3 rightButtonMouseLastPosition;
 	private Vector3 moveMousePosition;
@@ -88,8 +87,10 @@ public class PlayerInputComponent extends InputComponent {
 		moveMousePosition.set(screenX, screenY, 0);
 		MainGameScreen.camera.unproject(moveMousePosition);
 		MainGameScreen.drawHealthBar(false, null);
+		
 		for(Character character:getEntityManager().getEntitiesOfType(Character.class)) {
-			if(character.equals(entity)==false && isPointInRectangle(character.getEntityHitBox(), getMouseXYCoordinates(moveMousePosition, true))) {
+			if(character.equals(entity) == false && //
+				isPointInRectangle(character.getEntityHitBox(), getMouseXYCoordinates(moveMousePosition, true))) {
 				MainGameScreen.drawHealthBar(true, character);
 				break;
 			}
@@ -98,7 +99,10 @@ public class PlayerInputComponent extends InputComponent {
 	}
 
 	private boolean isPointInRectangle(Rectangle rectangle, Vector2 point) {
-		if(point.x > rectangle.x && point.x < rectangle.x + rectangle.width && point.y > rectangle.y && point.y < rectangle.y + rectangle.height)
+		if(point.x > rectangle.x && //
+			point.x < rectangle.x + rectangle.width && //
+			point.y > rectangle.y && //
+			point.y < rectangle.y + rectangle.height)
 			return true;
 		return false;
 	}
@@ -112,6 +116,8 @@ public class PlayerInputComponent extends InputComponent {
 		mouseButtons.put(Mouse.SELECT, true);
 		leftButtonMouseLastPosition.set(x, y, 0);
 		MainGameScreen.camera.unproject(leftButtonMouseLastPosition);
+
+		//check if player clicked mouse on any character (other than player)
 		for(Character character:getEntityManager().getEntitiesOfType(Character.class)) {
 			if(character.equals(entity) == false && //
 				isPointInRectangle(character.getEntityHitBox(), getMouseXYCoordinates(leftButtonMouseLastPosition, true))) {
@@ -146,13 +152,18 @@ public class PlayerInputComponent extends InputComponent {
 	public void update(float delta) {
 		processInput();
 		if(move) { //@formatter:off
-//			System.out.println("move");
-			Gdx.app.debug(TAG, "Enemy clicked?: "+enemyClicked);
-//			if(pathCenters.size>0) moveTowardPoint(delta, pathCenters.first());
 			if((enemyClicked && pathCenters.size>1) || (enemyClicked==false && pathCenters.size>0)) moveTowardPoint(delta, pathCenters.first());
 			else if(move && enemyClicked && pathCenters.size==1) { //attack
-				move=false;
-				enemyClicked=false;
+				move=enemyClicked=false;
+				entity.changeDirectionToward(getMouseXYCoordinates(leftButtonMouseLastPosition, false),0); //only change direction
+//				
+				//choose player attack
+				getEntityManager().getAnimationEntityObserver().addAnimation("attacks/sword-slice.png", entity, 16, 16, 10, false);
+//				getEntityManager().getAnimationEntityObserver().addAnimation("attacks/sword-drop.png", entity,16, 32, 18,true);
+				
+				//TODO - 4 lip 2020:wartoœæ obra¿eñ nale¿y pobieraæ jakoœ z wczeœniej dodanego do animacji ataku
+				attackedCharacter.subHealthPoints(10);
+				MainGameScreen.drawHealthBar(true, attackedCharacter); //important, so that player sees enemy health drop immediately, not after mouse move
 			}
 			else move=false;
 		} //@formatter:on
@@ -168,29 +179,30 @@ public class PlayerInputComponent extends InputComponent {
 		}
 		if(mouseButtons.get(Mouse.DOACTION)) {
 			mouseButtons.put(Mouse.DOACTION, false);
+			//choose player action (right mouse click)
 			getEntityManager().createAndGetEntity(new ProjectileDTO("sprites/projectiles/fireball.png", entity.getCurrentEntityPosition().cpy(), entity, getMouseXYCoordinates(
 				rightButtonMouseLastPosition, false)));
 		}
 	}
-	
+
 	private void addTilesCentersToQueue() {
 		if(tilePath != null) {
 			move = true;
 			pathCenters.clear();
 			for(Tile tile:tilePath)
 				pathCenters.addLast(tile.getCenter());
-			Gdx.app.debug(TAG, "Tile path: "+pathCenters);
+			//			Gdx.app.debug(TAG, "Tile path: " + pathCenters);
 		}
 	}
-	
-	public Character stopMovingAndAttack() {
-		if(move && enemyClicked) {
-			move = false;
-			enemyClicked = false;
-			return attackedCharacter;
-		}
-		return null;
-	}
+
+	//	public Character stopMovingAndAttack() {
+	//		if(move && enemyClicked) {
+	//			move = false;
+	//			enemyClicked = false;
+	//			return attackedCharacter;
+	//		}
+	//		return null;
+	//	}
 
 	private Vector2 getMouseXYCoordinates(Vector3 mouseButtonLastPosition, boolean scaled) {
 		Vector2 point = new Vector2();

@@ -9,9 +9,9 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import application.entities.concrete.entities.Character;
 
 public class EnemyHUD implements Screen{
-	private Stage stage;
-	private Viewport viewport;
-	private EnemyUI enemyUI;
+	private final Stage stage;
+	private final Viewport viewport;
+	private final EnemyUI enemyUI;
 	
 	public EnemyHUD(Camera camera) {
 		viewport=new ScreenViewport(camera);
@@ -21,8 +21,8 @@ public class EnemyHUD implements Screen{
 		stage.addActor(enemyUI);
 	}
 	
-	public void setValues(String enemyName, String enemyInfo, Character enemy) {
-		enemyUI.setValues(enemyName, enemyInfo, enemy);
+	public void setValues(Character enemy) {
+		enemyUI.setEnemyValues(enemy);
 	}
 
 	@Override

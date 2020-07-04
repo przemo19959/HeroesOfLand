@@ -47,7 +47,6 @@ public class MainGameScreen implements Screen {
 	private EntityManager entityManager;
 	private final AnimationEntityObserver animationEntityObserver;
 
-//	public static Entity player;
 	private static boolean drawHealthBar;
 
 	public MainGameScreen() {
@@ -66,7 +65,7 @@ public class MainGameScreen implements Screen {
 		mapRenderer.setView(camera);
 
 		//must be here in show method, in constructor exception is thrown (Utility class problems)
-		entityManager = new EntityManager(mapManager, animationEntityObserver); 
+		entityManager = new EntityManager(mapManager, animationEntityObserver);
 		entityManager.initAllCharacters();
 		currentPlayerSprite = entityManager.getPlayer().getEntitySprite();
 
@@ -94,15 +93,15 @@ public class MainGameScreen implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		camera.position.set(currentPlayerSprite.getX(), currentPlayerSprite.getY(), 0f);
 		camera.update();
-		
+
 		// ----------------- blok UPDATE --------------------------//
-		
+
 		entityManager.updateAllEntities(delta);
 		for(Character character:entityManager.getEntitiesOfType(Character.class))
 			character.updateInputComponent(delta);
 
 		// ----------------- blok UPDATE end-------------------//
-		
+
 		// ----------------- render block ---------------------//
 		mapRenderer.setView(camera);
 		shapeRenderer.setProjectionMatrix(camera.combined);
@@ -110,7 +109,7 @@ public class MainGameScreen implements Screen {
 		mapRenderer.getBatch().begin();
 		shapeRenderer.begin(ShapeType.Line);
 		shapeRenderer.setColor(Color.GREEN);
-		entityManager.getEntitiesOfType(Character.class).sort(Character.yComparator.reversed());
+		entityManager.getEntitiesOfType(Character.class).sort(Character.yComparator.reversed()); //for what?
 		entityManager.getEntitiesOfType(Character.class).forEach(character -> {
 			//			mapRenderer.getBatch().draw(character.getEntityTextureRegion(), character.getEntitySprite().getX()-0.5f, character.getEntitySprite().getY()-0.5f, 1, 1);
 			mapRenderer.getBatch().draw(character.getEntityTextureRegion(), character.getCurrentEntityPosition().x - 0.5f, character.getCurrentEntityPosition().y - 0.5f, 1, 1);
@@ -131,6 +130,7 @@ public class MainGameScreen implements Screen {
 			// , projectile.getProjectileSprite().getWidth()*MapManager.UNIT_SCALE, projectile.getProjectileSprite().getHeight()*MapManager.UNIT_SCALE);
 		});
 		animationEntityObserver.updateAllAnimations(mapRenderer.getBatch(), delta);
+
 		mapRenderer.getBatch().end();
 		mapRenderer.render(new int[]{6});
 
@@ -142,14 +142,13 @@ public class MainGameScreen implements Screen {
 		shapeRenderer.end();
 
 		characterHUD.render(delta);
-		if(drawHealthBar) {
+		if(drawHealthBar)
 			enemyHUD.render(delta);
-		}
 		// ----------------- render block end -------------------//
 	}
 
 	public static void drawHealthBar(boolean draw, Character enemy) {
-		enemyHUD.setValues("MAGE", "Demon", enemy);
+		enemyHUD.setValues(enemy);
 		drawHealthBar = draw;
 	}
 

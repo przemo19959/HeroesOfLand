@@ -34,7 +34,8 @@ class AnimationEntity {
 
 		if(caster instanceof Character) {
 			direction = ((Character) caster).getCurrentEntityDirection();
-			setPositionAccordingToDirection(caster.getCurrentEntityPosition(), noRotation);
+			//cpy() important, otherwise character position is changed for short period of time
+			setPositionAccordingToDirection(caster.getCurrentEntityPosition().cpy(), noRotation);
 		} else {
 			direction = Direction.RIGHT;
 			currentAnimationPosition.set(caster.getCurrentEntityPosition().sub(1f, 1f));
@@ -43,7 +44,7 @@ class AnimationEntity {
 		this.width = width;
 		this.height = height;
 
-		animation = Utility.loadAndGetAnimations(animationSpritePath, 1, numberOfFrames, 0.05f, PlayMode.NORMAL).get(0);
+		animation = Utility.loadAndGetAnimations(animationSpritePath, 1, numberOfFrames, 0.05f, PlayMode.NORMAL, width, height).get(0);
 		if(noRotation == false)
 			animationRotation = getRotationForGivenDirection(direction);
 	}

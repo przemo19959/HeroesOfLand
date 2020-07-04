@@ -30,7 +30,7 @@ public class EntityManager {
 		entities = new Array<>(100);
 		player=createAndGetEntity(new CharacterDTO(	"sprites/characters/Warrior.png", //
 			mapManager.getPlayerStart(),//
-			new PlayerInputComponent(this), 200));
+			new PlayerInputComponent(this), 200,"PLAYER","Brave Knight"));
 	}
 
 	//@formatter:off
@@ -61,7 +61,7 @@ public class EntityManager {
 				case MapManager.MAGE : {
 					for(Vector2 position:mapManager.getEnemySpawnLocationMap().get(enemyName))
 						//						createCharacter(MapManager.MAGE, position);
-						createAndGetEntity(new CharacterDTO("sprites/characters/Mage.png", position, new EnemyInputComponent(this), 80));
+						createAndGetEntity(new CharacterDTO("sprites/characters/Mage.png", position, new EnemyInputComponent(this), 80,"MAGE","Demon"));
 					break;
 				}
 			}

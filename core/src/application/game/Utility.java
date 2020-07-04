@@ -105,9 +105,9 @@ public final class Utility {
 		return asset;
 	}
 	
-	public static Array<Animation<TextureRegion>> loadAndGetAnimations(String spritePath,int numberOfAnimations,int numberOfFrames, float frameDuration, PlayMode playMode) {
+	public static Array<Animation<TextureRegion>> loadAndGetAnimations(String spritePath,int numberOfAnimations,int numberOfFrames, float frameDuration, PlayMode playMode, int frameWidth, int frameHeight) {
 		Texture texture = Utility.getAssetOfGivenType(spritePath, Texture.class);
-		TextureRegion[][] textureFrames = TextureRegion.split(texture, FRAME_WIDTH, FRAME_HEIGHT);
+		TextureRegion[][] textureFrames = TextureRegion.split(texture, frameWidth, frameHeight);
 
 		int noa = numberOfAnimations;
 		if(noa == 0)

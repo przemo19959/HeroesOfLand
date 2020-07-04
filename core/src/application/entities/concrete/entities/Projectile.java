@@ -10,20 +10,22 @@ import application.entities.EntityManager;
 import application.entities.concrete.dtos.ProjectileDTO;
 
 /**
- * Concrete entity for projectile type entity. Projectile moves with constant velocity and direction given by end position vector.
- * On collision with map collision layer or character it stops and is removed. Also at the collision ending animation is played.
+ * Concrete entity for projectile type entity. Projectile moves with constant velocity and direction given by end position vector. On collision with map collision layer or character it stops and is
+ * removed. Also at the collision ending animation is played.
+ * 
  * @author hex
- *
  */
 public class Projectile extends Entity {
-		private static final String TAG = Projectile.class.getSimpleName();
+	private static final String TAG = Projectile.class.getSimpleName();
 
+	private final ProjectileDTO projectileDTO;
 	private final Animation<TextureRegion> animation;
 	private final Vector2 fireDirection;
 	private final Character caster;
 
 	public Projectile(ProjectileDTO projectileDTO) {
 		super(projectileDTO);
+		this.projectileDTO=projectileDTO;
 
 		animation = loadAndGetAnimations(5, 0.1f, PlayMode.NORMAL).get(0);
 		//add vector [0.5,0.5] because end position is left bottom corner, and we want center of that position
@@ -62,6 +64,7 @@ public class Projectile extends Entity {
 	//@formatter:off
 	public boolean casterEquals(Entity entity) {return caster.equals(entity);}
 	public float getRotationAngle() {return fireDirection.angle();}
+	public ProjectileDTO getProjectileDTO() {return projectileDTO;}
 	//@formatter:on
 
 	/**

@@ -20,7 +20,7 @@ import static application.game.Utility.*;
 
 public abstract class Entity {
 	private static final String WIDTH_AND_HEIGHT_ERROR = "Width and Height are 0! {0}:{1}";
-	
+
 	private static final String TAG = Entity.class.getSimpleName();
 
 	private final CreateDTO createDTO;
@@ -78,17 +78,17 @@ public abstract class Entity {
 	protected void initHitBoxSize(float percentageWidthReduced, float percentageHeightReduced, float xOffset, float yOffset) {
 		float widthReductionAmount = 1.0f - percentageWidthReduced; // .8f for 20% (1 - .20)
 		float heightReductionAmount = 1.0f - percentageHeightReduced; // .8f for 20% (1 - .20)
-		
+
 		float width = (widthReductionAmount > 0 && widthReductionAmount < 1) ? FRAME_WIDTH * widthReductionAmount : FRAME_WIDTH;
 		float height = (heightReductionAmount > 0 && heightReductionAmount < 1) ? FRAME_HEIGHT * heightReductionAmount : FRAME_HEIGHT;
 		if(width == 0 || height == 0)
 			Gdx.app.debug(TAG, MessageFormat.format(WIDTH_AND_HEIGHT_ERROR, width, height));
-		
+
 		updateHitBoxPosition(xOffset, yOffset);
 		entityHitBox.setWidth(width);
 		entityHitBox.setHeight(height);
 	}
-	
+
 	protected void updateHitBoxPosition(float xOffset, float yOffset) {
 		float minX;
 		float minY;
@@ -120,8 +120,8 @@ public abstract class Entity {
 	//********************************** Animation load *******************************************
 	protected abstract int numberOfAnimations();
 	protected Array<Animation<TextureRegion>> loadAndGetAnimations(int numberOfFrames, float frameDuration, PlayMode playMode) {
-		return Utility.loadAndGetAnimations(createDTO.getEntitySpritePath(),//
-			numberOfAnimations(), numberOfFrames, frameDuration, playMode);
+		return Utility.loadAndGetAnimations(createDTO.getEntitySpritePath(), //
+			numberOfAnimations(), numberOfFrames, frameDuration, playMode, Utility.FRAME_WIDTH, Utility.FRAME_HEIGHT);
 	}
 	//*********************************************************************************************
 
